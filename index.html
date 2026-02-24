@@ -271,14 +271,19 @@
         <div class="section">
           <h2>Advanced Line Settings</h2>
           <div class="grid-2">
+            <label class="inline"><input id="waveEnabled" type="checkbox"> Enable Wave Correction</label>
+            <div></div>
             <label>Base Padding (m)<input id="basePaddingM" type="number" min="0" step="1"></label>
             <label>Current Factor (k_current)<input id="kCurrent" type="number" min="0" step="0.1"></label>
+            <label>Wave Factor (k_wave)<input id="kWave" type="number" min="0" step="0.1"></label>
             <label>Min Line Length Clamp (m)<input id="lineClampMinM" type="number" min="1" step="1"></label>
             <label>Max Line Length Clamp (m)<input id="lineClampMaxM" type="number" min="1" step="1"></label>
-            <label>Max Current Line Delta Clamp (°)<input id="deltaLineClampDeg" type="number" min="0" step="0.1"></label>
+            <label>Max Total Line Delta Clamp (Current + Waves, °)<input id="deltaLineClampDeg" type="number" min="0" step="0.1"></label>
             <label>Mark 1 Time Multiplier<input id="mark1TimeMultiplier" type="number" min="0.1" step="0.05"></label>
+            <label>Wave Height (m)<input id="waveHeightM" type="number" min="0" step="0.1"></label>
+            <label>Wave Direction (from, °)<input id="waveDirectionFromDeg" type="number" min="0" max="359" step="1"></label>
           </div>
-          <div class="hint" style="margin-top:8px;">The start line is computed from RC (Race Committee) to Pin End (bearing RC→Pin). Current Set is a TO direction.</div>
+          <div class="hint" style="margin-top:8px;">The start line is computed from RC (Race Committee) to Pin End (bearing RC→Pin). Total line correction = current + waves. Current Set is a TO direction; Wave Direction is a FROM direction.</div>
         </div>
 
         <div class="section">
@@ -375,8 +380,12 @@
         lineClampMinM: 60,
         lineClampMaxM: 600,
         kCurrent: 8,
+        kWave: 2.5,
         deltaLineClampDeg: 8,
-        mark1TimeMultiplier: 1
+        mark1TimeMultiplier: 1,
+        waveEnabled: true,
+        waveHeightM: 0,
+        waveDirectionFromDeg: 0
       },
       speedModels: {
         Optimist: { upwind: { base: 2.2, slope: 0.08, min: 2.0, max: 4.0 } },
@@ -463,17 +472,42 @@
       return clamp(raw, Number(a.lineClampMinM), Number(a.lineClampMaxM));
     }
 
+    function computeWaveEffects(state, upwindHeadingDeg) {
+      const a = state.advanced;
+      const waveEnabled = !!a.waveEnabled;
+      const tws = Math.max(0, Number(state.inputs.tws || 0));
+      const waveHeightM = Math.max(0, Number(a.waveHeightM || 0));
+      const waveFromDeg = mod360(Number(a.waveDirectionFromDeg || 0));
+      const waveToDeg = mod360(waveFromDeg + 180);
+
+      if (!waveEnabled) {
+        return { waveEnabled, waveHeightM, waveFromDeg, waveToDeg, rawWaveDeltaDeg: 0, waveTimeFactor: 1 };
+      }
+
+      // Line bearing effect: use the cross component of wave propagation relative to TWD.
+      const rawWaveDeltaDeg = Number(a.kWave || 0) * waveHeightM *
+        Math.sin(degToRad(signedAngleDiffDeg(waveToDeg, Number(state.inputs.twd)))) / Math.max(1, tws);
+
+      // Time effect: waves from ahead on the upwind leg penalize time more than following seas.
+      const headSeaAlignment = (1 + Math.cos(degToRad(signedAngleDiffDeg(waveFromDeg, upwindHeadingDeg)))) / 2; // 0..1
+      const waveTimeFactor = clamp(1 + (0.18 * waveHeightM * (0.35 + 0.65 * headSeaAlignment)), 1, 2.5);
+
+      return { waveEnabled, waveHeightM, waveFromDeg, waveToDeg, rawWaveDeltaDeg, waveTimeFactor };
+    }
+
     function computeLine(state) {
       const cb = point(state.committeeBoat.lat, state.committeeBoat.lon);
       const twd = mod360(Number(state.inputs.twd));
       const tws = Math.max(0, Number(state.inputs.tws));
       const setDir = mod360(Number(state.inputs.currentSet));
       const drift = Math.max(0, Number(state.inputs.currentDrift));
+      const upwindHeading = mod360(twd + 180);
 
-      const rawDelta = Number(state.advanced.kCurrent) * drift * Math.sin(degToRad(signedAngleDiffDeg(setDir, twd))) / Math.max(1, tws);
+      const rawCurrentDeltaDeg = Number(state.advanced.kCurrent) * drift * Math.sin(degToRad(signedAngleDiffDeg(setDir, twd))) / Math.max(1, tws);
+      const waveFx = computeWaveEffects(state, upwindHeading);
+      const rawDelta = rawCurrentDeltaDeg + waveFx.rawWaveDeltaDeg;
       const deltaLineDeg = clamp(rawDelta, -Number(state.advanced.deltaLineClampDeg), Number(state.advanced.deltaLineClampDeg));
       const lineHeading = mod360(twd + 90 + deltaLineDeg);
-      const upwindHeading = mod360(twd + 180);
 
       const autoLengthM = computeAutoLineLengthM(state);
       const lengthM = state.inputs.useManualLineLength ? Math.max(1, Number(state.inputs.lineLengthOverrideM)) : autoLengthM;
@@ -484,7 +518,13 @@
         cb, pin, center,
         headingDeg: lineHeading,
         upwindHeadingDeg: upwindHeading,
+        deltaCurrentDeg: rawCurrentDeltaDeg,
+        deltaWaveDeg: waveFx.rawWaveDeltaDeg,
         deltaLineDeg,
+        waveEnabled: waveFx.waveEnabled,
+        waveTimeFactor: waveFx.waveTimeFactor,
+        waveHeightM: waveFx.waveHeightM,
+        waveDirectionFromDeg: waveFx.waveFromDeg,
         lengthM,
         lengthNm: lengthM * M_TO_NM,
         autoLengthM,
@@ -607,10 +647,14 @@
 
       a.basePaddingM = Math.max(0, Number(a.basePaddingM || 0));
       a.kCurrent = Math.max(0, Number(a.kCurrent || 0));
+      a.kWave = Math.max(0, Number(a.kWave || 0));
       a.lineClampMinM = Math.max(1, Number(a.lineClampMinM || 1));
       a.lineClampMaxM = Math.max(a.lineClampMinM, Number(a.lineClampMaxM || a.lineClampMinM));
       a.deltaLineClampDeg = Math.max(0, Number(a.deltaLineClampDeg || 0));
       a.mark1TimeMultiplier = Math.max(0.1, Number(a.mark1TimeMultiplier || 1));
+      a.waveEnabled = !!a.waveEnabled;
+      a.waveHeightM = Math.max(0, Number(a.waveHeightM || 0));
+      a.waveDirectionFromDeg = mod360(Number(a.waveDirectionFromDeg || 0));
     }
 
     function updateConditionalUI() {
@@ -618,6 +662,9 @@
       ui.d1TimeWrap.style.display = appState.inputs.d1Mode === "time" ? "" : "none";
       ui.lineLengthOverrideM.disabled = !appState.inputs.useManualLineLength;
       ui.lineLengthOverrideNm.disabled = !appState.inputs.useManualLineLength;
+      ui.kWave.disabled = !appState.advanced.waveEnabled;
+      ui.waveHeightM.disabled = !appState.advanced.waveEnabled;
+      ui.waveDirectionFromDeg.disabled = !appState.advanced.waveEnabled;
     }
 
     function updateSummary() {
@@ -628,19 +675,23 @@
       const correctedRcBearing = appState.inputs.rule3Enabled ? r3.bearingRcCorrectedFromCenter : r3.bearingCbRaw;
       const fleetTimeFactor = LEVEL_MULTIPLIER[appState.inputs.fleetLevel] || 1;
       const mark1TimeMultiplier = Number(appState.advanced.mark1TimeMultiplier || 1);
-      const combinedTimeFactor = fleetTimeFactor * mark1TimeMultiplier;
+      const waveTimeFactor = Number(l.waveTimeFactor || 1);
+      const combinedTimeFactor = fleetTimeFactor * mark1TimeMultiplier * waveTimeFactor;
       const estimatedTimeToM1RawMin = upwind > 0 ? (d1.d1Nm / upwind) * 60 : null;
       const estimatedTimeToM1Min = estimatedTimeToM1RawMin == null ? null : estimatedTimeToM1RawMin * combinedTimeFactor;
 
       const items = [
         ["RC → Pin Line Bearing", `${fmt(l.headingDeg,1)}°`],
         ["Upwind Heading", `${fmt(l.upwindHeadingDeg,1)}°`],
-        ["Current Line Correction", `${fmt(l.deltaLineDeg,2)}°`],
+        ["Current Line Correction", `${fmt(l.deltaCurrentDeg,2)}°`],
+        ["Wave Line Correction", `${fmt(l.deltaWaveDeg,2)}°`],
+        ["Total Line Correction", `${fmt(l.deltaLineDeg,2)}°`],
         ["Line Length", `${fmt(l.lengthM,1)} m (${fmt(l.lengthNm,3)} NM)`],
         ["Auto Line Length", `${fmt(l.autoLengthM,1)} m (${fmt(l.autoLengthNm,3)} NM)`],
         ["Mark 1 Distance (D1)", `${fmt(d1.d1M,1)} m (${fmt(d1.d1Nm,3)} NM)`],
         ["Estimated Time to Mark 1", `${fmt(estimatedTimeToM1Min,1)} min (x${fmt(combinedTimeFactor,2)})`],
         ["Estimated Upwind Speed", `${fmt(upwind,2)} kn`],
+        ["Wave Time Factor", l.waveEnabled ? `x${fmt(waveTimeFactor,2)} (${fmt(l.waveHeightM,1)} m @ ${fmtDeg(l.waveDirectionFromDeg)}° from)` : "x1.00 (waves off)"],
         ["Mark 1 Bearing from Center", `${fmtDeg(r3.bearingCenter)}°`],
         ["Mark 1 Bearing from RC (raw)", `${fmtDeg(r3.bearingCbRaw)}°`],
         ["Mark 1 Bearing from RC (corrected)", `${fmtDeg(correctedRcBearing)}° ${appState.inputs.rule3Enabled ? "" : "(Rule 3 off)"}`],
@@ -680,11 +731,12 @@
           <div class="diagram-stats-line"><strong>Compensated Line (RC→Pin):</strong> ${fmt(l.headingDeg,1)}°</div>
           <div class="diagram-stats-line">Wind-only Line (TWD+90): ${fmt(idealHeading,1)}°</div>
           <div class="diagram-stats-line">Line Length: ${fmt(l.lengthM,1)} m (${fmt(l.lengthNm,3)} NM)</div>
-          <div class="diagram-stats-line">Current Bearing Correction: ${fmt(l.deltaLineDeg,2)}°</div>
+          <div class="diagram-stats-line">Current Correction: ${fmt(l.deltaCurrentDeg,2)}° · Wave Correction: ${fmt(l.deltaWaveDeg,2)}°${l.waveEnabled ? "" : " (off)"}</div>
         </div>
         <div class="diagram-stats-col">
           <div class="diagram-stats-line"><strong>Wind (TWD):</strong> ${fmtDeg(appState.inputs.twd)}° from</div>
           <div class="diagram-stats-line">Current: ${fmtDeg(appState.inputs.currentSet)}° · ${fmt(appState.inputs.currentDrift,1)} kn</div>
+          <div class="diagram-stats-line">Waves: ${l.waveEnabled ? `${fmt(l.waveHeightM,1)} m from ${fmtDeg(l.waveDirectionFromDeg)}° · time factor x${fmt(l.waveTimeFactor,2)}` : "off"}</div>
           <div class="diagram-stats-line">Upwind Heading: ${fmt(l.upwindHeadingDeg,1)}°</div>
           <div class="diagram-stats-line">Fleet: ${appState.inputs.boatClass} · ${Math.round(appState.inputs.participants)} boats · ${appState.inputs.fleetLevel}</div>
         </div>
@@ -801,10 +853,14 @@
 
       ui.basePaddingM.value = a.basePaddingM;
       ui.kCurrent.value = a.kCurrent;
+      ui.kWave.value = a.kWave;
       ui.lineClampMinM.value = a.lineClampMinM;
       ui.lineClampMaxM.value = a.lineClampMaxM;
       ui.deltaLineClampDeg.value = a.deltaLineClampDeg;
       ui.mark1TimeMultiplier.value = Number(a.mark1TimeMultiplier).toFixed(2);
+      ui.waveEnabled.checked = !!a.waveEnabled;
+      ui.waveHeightM.value = Number(a.waveHeightM).toFixed(1);
+      ui.waveDirectionFromDeg.value = Math.round(mod360(a.waveDirectionFromDeg));
     }
 
     function recomputeAndRender(statusMsg) {
@@ -850,7 +906,12 @@
           recomputeAndRender();
         }));
 
-      [["basePaddingM", "basePaddingM"], ["kCurrent", "kCurrent"], ["lineClampMinM", "lineClampMinM"], ["lineClampMaxM", "lineClampMaxM"], ["deltaLineClampDeg", "deltaLineClampDeg"], ["mark1TimeMultiplier", "mark1TimeMultiplier"]]
+      ui.waveEnabled.addEventListener("change", () => {
+        appState.advanced.waveEnabled = ui.waveEnabled.checked;
+        recomputeAndRender();
+      });
+
+      [["basePaddingM", "basePaddingM"], ["kCurrent", "kCurrent"], ["kWave", "kWave"], ["lineClampMinM", "lineClampMinM"], ["lineClampMaxM", "lineClampMaxM"], ["deltaLineClampDeg", "deltaLineClampDeg"], ["mark1TimeMultiplier", "mark1TimeMultiplier"], ["waveHeightM", "waveHeightM"], ["waveDirectionFromDeg", "waveDirectionFromDeg"]]
         .forEach(([id, key]) => ui[id].addEventListener("input", () => {
           appState.advanced[key] = Number(ui[id].value);
           recomputeAndRender();
@@ -870,8 +931,8 @@
       [
         "twd", "tws", "currentSet", "currentDrift", "boatClass", "participants", "fleetLevel", "d1Mode", "d1Nm", "targetTimeUpwindMin",
         "useManualLineLength", "lineLengthOverrideM", "lineLengthOverrideNm", "rule3Enabled",
-        "basePaddingM", "kCurrent", "lineClampMinM", "lineClampMaxM", "deltaLineClampDeg",
-        "mark1TimeMultiplier",
+        "basePaddingM", "kCurrent", "kWave", "lineClampMinM", "lineClampMaxM", "deltaLineClampDeg",
+        "mark1TimeMultiplier", "waveEnabled", "waveHeightM", "waveDirectionFromDeg",
         "recomputeAll", "resetDefaults", "appStatus", "d1NmWrap", "d1TimeWrap",
         "summaryGrid", "rule3Summary", "pointsTable", "diagram", "diagramStats"
       ].forEach((id) => ui[id] = document.getElementById(id));

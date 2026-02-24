@@ -5,9 +5,9 @@
 It focuses on:
 - RC (Race Committee) -> Pin start line bearing
 - Wind-only line vs compensated line
-- Wind / current visual schematic (no map)
+- Wind / current / wave visual schematic (no map)
 - Mark 1 bearings and Rule 3 correction (numeric output)
-- Estimated time to Mark 1 (fleet level factor + advanced multiplier)
+- Estimated time to Mark 1 (fleet level factor + advanced multiplier + wave factor)
 
 ## Files
 
@@ -41,6 +41,8 @@ Your app will be available at:
 
 - TWD is entered as wind direction **from**
 - Current Set is entered as direction **to** (where current flows)
+- Wave Direction is entered as direction **from** (where waves come from)
+- Total start-line correction is computed as **current correction + wave correction**
 - The diagram is schematic (not chart scale)
 - RC = Race Committee (formerly CB / Committee Boat)
 - `Bearing from RC corrected` is the operational RC reading derived from center-line bearing plus/minus Rule 3 correction
