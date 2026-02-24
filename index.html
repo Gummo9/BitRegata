@@ -276,6 +276,7 @@
             <label>Min Line Length Clamp (m)<input id="lineClampMinM" type="number" min="1" step="1"></label>
             <label>Max Line Length Clamp (m)<input id="lineClampMaxM" type="number" min="1" step="1"></label>
             <label>Max Current Line Delta Clamp (°)<input id="deltaLineClampDeg" type="number" min="0" step="0.1"></label>
+            <label>Mark 1 Time Multiplier<input id="mark1TimeMultiplier" type="number" min="0.1" step="0.05"></label>
           </div>
           <div class="hint" style="margin-top:8px;">The start line is computed from RC (Race Committee) to Pin End (bearing RC→Pin). Current Set is a TO direction.</div>
         </div>
@@ -374,7 +375,8 @@
         lineClampMinM: 60,
         lineClampMaxM: 600,
         kCurrent: 8,
-        deltaLineClampDeg: 8
+        deltaLineClampDeg: 8,
+        mark1TimeMultiplier: 1
       },
       speedModels: {
         Optimist: { upwind: { base: 2.2, slope: 0.08, min: 2.0, max: 4.0 } },
@@ -608,6 +610,7 @@
       a.lineClampMinM = Math.max(1, Number(a.lineClampMinM || 1));
       a.lineClampMaxM = Math.max(a.lineClampMinM, Number(a.lineClampMaxM || a.lineClampMinM));
       a.deltaLineClampDeg = Math.max(0, Number(a.deltaLineClampDeg || 0));
+      a.mark1TimeMultiplier = Math.max(0.1, Number(a.mark1TimeMultiplier || 1));
     }
 
     function updateConditionalUI() {
@@ -624,8 +627,10 @@
       const upwind = derivedState.speeds.upwindKn;
       const correctedRcBearing = appState.inputs.rule3Enabled ? r3.bearingRcCorrectedFromCenter : r3.bearingCbRaw;
       const fleetTimeFactor = LEVEL_MULTIPLIER[appState.inputs.fleetLevel] || 1;
+      const mark1TimeMultiplier = Number(appState.advanced.mark1TimeMultiplier || 1);
+      const combinedTimeFactor = fleetTimeFactor * mark1TimeMultiplier;
       const estimatedTimeToM1RawMin = upwind > 0 ? (d1.d1Nm / upwind) * 60 : null;
-      const estimatedTimeToM1Min = estimatedTimeToM1RawMin == null ? null : estimatedTimeToM1RawMin * fleetTimeFactor;
+      const estimatedTimeToM1Min = estimatedTimeToM1RawMin == null ? null : estimatedTimeToM1RawMin * combinedTimeFactor;
 
       const items = [
         ["RC → Pin Line Bearing", `${fmt(l.headingDeg,1)}°`],
@@ -634,7 +639,7 @@
         ["Line Length", `${fmt(l.lengthM,1)} m (${fmt(l.lengthNm,3)} NM)`],
         ["Auto Line Length", `${fmt(l.autoLengthM,1)} m (${fmt(l.autoLengthNm,3)} NM)`],
         ["Mark 1 Distance (D1)", `${fmt(d1.d1M,1)} m (${fmt(d1.d1Nm,3)} NM)`],
-        ["Estimated Time to Mark 1", `${fmt(estimatedTimeToM1Min,1)} min (x${fmt(fleetTimeFactor,2)})`],
+        ["Estimated Time to Mark 1", `${fmt(estimatedTimeToM1Min,1)} min (x${fmt(combinedTimeFactor,2)})`],
         ["Estimated Upwind Speed", `${fmt(upwind,2)} kn`],
         ["Mark 1 Bearing from Center", `${fmtDeg(r3.bearingCenter)}°`],
         ["Mark 1 Bearing from RC (raw)", `${fmtDeg(r3.bearingCbRaw)}°`],
@@ -799,6 +804,7 @@
       ui.lineClampMinM.value = a.lineClampMinM;
       ui.lineClampMaxM.value = a.lineClampMaxM;
       ui.deltaLineClampDeg.value = a.deltaLineClampDeg;
+      ui.mark1TimeMultiplier.value = Number(a.mark1TimeMultiplier).toFixed(2);
     }
 
     function recomputeAndRender(statusMsg) {
@@ -844,7 +850,7 @@
           recomputeAndRender();
         }));
 
-      [["basePaddingM", "basePaddingM"], ["kCurrent", "kCurrent"], ["lineClampMinM", "lineClampMinM"], ["lineClampMaxM", "lineClampMaxM"], ["deltaLineClampDeg", "deltaLineClampDeg"]]
+      [["basePaddingM", "basePaddingM"], ["kCurrent", "kCurrent"], ["lineClampMinM", "lineClampMinM"], ["lineClampMaxM", "lineClampMaxM"], ["deltaLineClampDeg", "deltaLineClampDeg"], ["mark1TimeMultiplier", "mark1TimeMultiplier"]]
         .forEach(([id, key]) => ui[id].addEventListener("input", () => {
           appState.advanced[key] = Number(ui[id].value);
           recomputeAndRender();
@@ -865,6 +871,7 @@
         "twd", "tws", "currentSet", "currentDrift", "boatClass", "participants", "fleetLevel", "d1Mode", "d1Nm", "targetTimeUpwindMin",
         "useManualLineLength", "lineLengthOverrideM", "lineLengthOverrideNm", "rule3Enabled",
         "basePaddingM", "kCurrent", "lineClampMinM", "lineClampMaxM", "deltaLineClampDeg",
+        "mark1TimeMultiplier",
         "recomputeAll", "resetDefaults", "appStatus", "d1NmWrap", "d1TimeWrap",
         "summaryGrid", "rule3Summary", "pointsTable", "diagram", "diagramStats"
       ].forEach((id) => ui[id] = document.getElementById(id));

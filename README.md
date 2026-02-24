@@ -7,6 +7,7 @@ It focuses on:
 - Wind-only line vs compensated line
 - Wind / current visual schematic (no map)
 - Mark 1 bearings and Rule 3 correction (numeric output)
+- Estimated time to Mark 1 (fleet level factor + advanced multiplier)
 
 ## Files
 
@@ -41,3 +42,6 @@ Your app will be available at:
 - TWD is entered as wind direction **from**
 - Current Set is entered as direction **to** (where current flows)
 - The diagram is schematic (not chart scale)
+- RC = Race Committee (formerly CB / Committee Boat)
+- `Bearing from RC corrected` is the operational RC reading derived from center-line bearing plus/minus Rule 3 correction
+- `Mark 1 Time Multiplier` affects only estimated time to Mark 1 (it does not move Mark 1)
