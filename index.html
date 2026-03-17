@@ -315,8 +315,8 @@
           <div class="legend" style="margin-top:8px;">
             <div class="legend-item"><span class="swatch sw-cb"></span><b>RC</b> Race Committee (line end)</div>
             <div class="legend-item"><span class="swatch sw-pin"></span><b>Pin</b> Pin End (line end)</div>
-            <div class="legend-item"><b>Black Arrow</b> = Wind flow direction (arrow points where wind goes)</div>
-            <div class="legend-item"><b>Blue Arrow</b> = Current set direction (where current flows)</div>
+            <div class="legend-item"><b>Black Arrow</b> = Wind entered as FROM direction; arrow shows where the wind goes</div>
+            <div class="legend-item"><b>Blue Arrow</b> = Current entered as TO direction; arrow shows where the current flows</div>
           </div>
         </div>
 
@@ -754,7 +754,7 @@
       return { x: x + Math.sin(r) * len, y: y - Math.cos(r) * len };
     }
 
-    function arrowSvg(x, y, len, bearingDeg, color, label) {
+    function arrowSvg(x, y, len, bearingDeg, color, label, labelDx = 10, labelDy = -6) {
       const end = arrowEnd(x, y, len, bearingDeg);
       const head = 10;
       const left = arrowEnd(end.x, end.y, head, bearingDeg + 150);
@@ -763,7 +763,7 @@
         ${svgLine(x, y, end.x, end.y, `stroke="${color}" stroke-width="3"`)}
         ${svgLine(end.x, end.y, left.x, left.y, `stroke="${color}" stroke-width="3"`)}
         ${svgLine(end.x, end.y, right.x, right.y, `stroke="${color}" stroke-width="3"`)}
-        ${svgText(end.x + 10, end.y - 6, label, 'fill="#10212f" font-size="14" font-weight="600"')}
+        ${svgText(end.x + labelDx, end.y + labelDy, label, 'fill="#10212f" font-size="14" font-weight="600"')}
       `;
     }
 
@@ -786,8 +786,7 @@
       const cb = visualPoint(center, halfLen, mod360(l.headingDeg + 180));
       const pin = visualPoint(center, halfLen, l.headingDeg);
 
-      const windBase = { x: 88, y: 108 };
-      const currentBase = { x: 88, y: 222 };
+      const vectorBase = { x: 96, y: 160 };
       const northBase = { x: 886, y: 118 };
 
       const html = `
@@ -803,8 +802,10 @@
         </g>
 
         <g>
-          ${arrowSvg(windBase.x, windBase.y, 64, windFlowHeading, '#111827', `TWD ${fmtDeg(appState.inputs.twd)}°`)}
-          ${arrowSvg(currentBase.x, currentBase.y, 56, currentHeading, '#1d4ed8', `Current ${fmtDeg(currentHeading)}° · ${fmt(appState.inputs.currentDrift,1)} kn`)}
+          ${svgCircle(vectorBase.x, vectorBase.y, 4, 'fill="#475569"')}
+          ${svgText(vectorBase.x - 18, vectorBase.y - 18, 'Vector origin', 'fill="#64748b" font-size="11" font-weight="600"')}
+          ${arrowSvg(vectorBase.x, vectorBase.y, 64, windFlowHeading, '#111827', `Wind FROM ${fmtDeg(appState.inputs.twd)}°`, 10, -8)}
+          ${arrowSvg(vectorBase.x, vectorBase.y, 56, currentHeading, '#1d4ed8', `Current TO ${fmtDeg(currentHeading)}° · ${fmt(appState.inputs.currentDrift,1)} kn`, 10, 16)}
           ${arrowSvg(northBase.x, northBase.y, 56, 0, '#334155', 'North 000°')}
         </g>
 
