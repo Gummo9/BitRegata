@@ -157,10 +157,7 @@
     .diagram-wrap {
       border: 1px solid var(--line);
       border-radius: 22px;
-      background:
-        radial-gradient(circle at 14% 12%, rgba(10,147,150,.08), transparent 26%),
-        radial-gradient(circle at 86% 10%, rgba(29,78,216,.06), transparent 24%),
-        linear-gradient(180deg, #fafdff, #f1f7fb);
+      background: linear-gradient(180deg, #fafdff, #f3f8fc);
       box-shadow: inset 0 1px 0 rgba(255,255,255,.85);
       overflow: hidden;
     }
@@ -789,6 +786,13 @@
     function svgTextBlock(x, y, lines, attrs = "", lineHeight = 18) {
       return `<text x="${x}" y="${y}" ${attrs}>${lines.map((line, i) => `<tspan x="${x}" dy="${i === 0 ? 0 : lineHeight}">${line}</tspan>`).join("")}</text>`;
     }
+    function svgBadge(x, y, text, fill, stroke = "transparent", textColor = "#10212f") {
+      const width = Math.max(82, text.length * 7.1 + 22);
+      return `
+        ${svgRect(x, y - 18, width, 28, `rx="14" fill="${fill}" stroke="${stroke}" stroke-width="1"`)}
+        ${svgText(x + 11, y, text, `fill="${textColor}" font-size="12" font-weight="700"`)}
+      `;
+    }
 
     function arrowEnd(x, y, len, bearingDeg) {
       const r = degToRad(bearingDeg);
@@ -805,15 +809,6 @@
         ${svgLine(end.x, end.y, left.x, left.y, `stroke="${color}" stroke-width="3"`)}
         ${svgLine(end.x, end.y, right.x, right.y, `stroke="${color}" stroke-width="3"`)}
         ${svgText(end.x + labelDx, end.y + labelDy, label, 'fill="#10212f" font-size="14" font-weight="600"')}
-      `;
-    }
-
-    function infoCardSvg(x, y, w, h, title, lines, accentColor) {
-      return `
-        ${svgRect(x, y, w, h, 'rx="18" fill="rgba(255,255,255,0.82)" stroke="rgba(211,223,232,0.95)" stroke-width="1.2"')}
-        ${svgRect(x + 14, y + 16, 28, 6, `rx="3" fill="${accentColor}" opacity="0.95"`)}
-        ${svgText(x + 14, y + 42, title, 'fill="#10212f" font-size="14" font-weight="700"')}
-        ${svgTextBlock(x + 14, y + 64, lines, 'fill="#546678" font-size="12.5" font-weight="600"', 17)}
       `;
     }
 
@@ -847,60 +842,44 @@
       const cb = visualPoint(center, halfLen, mod360(l.headingDeg + 180));
       const pin = visualPoint(center, halfLen, l.headingDeg);
 
-      const vectorBase = { x: 190, y: 152 };
-      const northBase = { x: 882, y: 126 };
-      const vectorPanel = { x: 52, y: 54, w: 348, h: 182 };
-      const linePanel = { x: 420, y: 64, w: 272, h: 92 };
+      const vectorBase = { x: 148, y: 132 };
+      const northBase = { x: 884, y: 110 };
+      const adjustedFromCenterEnd = arrowEnd(center.x, center.y, 88, adjustedHeading);
 
       const html = `
         <defs>
           <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
             <feDropShadow dx="0" dy="1" stdDeviation="1.4" flood-color="#9fb3c2" flood-opacity="0.4"/>
           </filter>
-          <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#b7c8d6" flood-opacity="0.24"/>
-          </filter>
         </defs>
         <rect x="0" y="0" width="1000" height="620" fill="transparent"></rect>
-        <g opacity="0.2">
-          ${Array.from({ length: 10 }).map((_, i) => svgLine(60 + i * 95, 34, 60 + i * 95, 586, 'stroke="#d6e3ec" stroke-width="1"')).join('')}
-          ${Array.from({ length: 6 }).map((_, i) => svgLine(40, 72 + i * 88, 960, 72 + i * 88, 'stroke="#d6e3ec" stroke-width="1"')).join('')}
+        <g opacity="0.22">
+          ${Array.from({ length: 10 }).map((_, i) => svgLine(60 + i * 95, 36, 60 + i * 95, 584, 'stroke="#d8e4ed" stroke-width="1"')).join('')}
+          ${Array.from({ length: 6 }).map((_, i) => svgLine(40, 82 + i * 84, 960, 82 + i * 84, 'stroke="#d8e4ed" stroke-width="1"')).join('')}
         </g>
-        <g filter="url(#softShadow)">
-          ${svgRect(28, 28, 944, 564, 'rx="26" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.55)"')}
-        </g>
+        ${svgText(60, 58, 'Vector logic', 'fill="#607284" font-size="13" font-weight="800" letter-spacing="0.08em"')}
+        ${svgText(60, 292, 'Field geometry', 'fill="#607284" font-size="13" font-weight="800" letter-spacing="0.08em"')}
 
         <g>
-          ${infoCardSvg(vectorPanel.x, vectorPanel.y, vectorPanel.w, vectorPanel.h, 'Flow Vectors', [
-            `Wind: FROM ${fmtDeg(appState.inputs.twd)}° -> TO ${fmtDeg(windFlowHeading)}°`,
-            `Current: TO ${fmtDeg(currentHeading)}° at ${fmt(appState.inputs.currentDrift,1)} kn`,
-            `Adjusted Sailing Wind: ${fmtDeg(adjustedHeading)}° at ${fmt(adjustedSpeed,1)} kn`
-          ], '#0f766e')}
+          ${svgRect(54, 72, 316, 170, 'rx="18" fill="rgba(255,255,255,0.84)" stroke="#d3dfe8" stroke-width="1.2"')}
           ${svgCircle(vectorBase.x, vectorBase.y, 5, 'fill="#41576a" opacity="0.9"')}
           ${svgCircle(vectorBase.x, vectorBase.y, 13, 'fill="none" stroke="#9fb3c2" stroke-width="1.4" opacity="0.65"')}
           ${arrowSvg(vectorBase.x, vectorBase.y, 66, windFlowHeading, '#111827', '', 0, 0)}
           ${arrowSvg(vectorBase.x, vectorBase.y, 58, currentHeading, '#1d4ed8', '', 0, 0)}
           ${arrowSvg(vectorBase.x, vectorBase.y, adjustedArrowLen, adjustedHeading, '#0f766e', '', 0, 0)}
-          ${svgText(vectorBase.x - 40, vectorBase.y + 92, 'Shared vector origin', 'fill="#64748b" font-size="11.5" font-weight="700"')}
+          ${svgText(vectorBase.x - 34, vectorBase.y + 94, 'Shared origin', 'fill="#607284" font-size="11.5" font-weight="700"')}
+          ${svgBadge(214, 116, `Wind FROM ${fmtDeg(appState.inputs.twd)}°`, '#f8fafc', '#d8e4ed')}
+          ${svgBadge(214, 150, `Current TO ${fmtDeg(currentHeading)}° · ${fmt(appState.inputs.currentDrift,1)} kn`, '#eff6ff', '#bfdbfe', '#1d4ed8')}
+          ${svgBadge(214, 184, `Adjusted ${fmtDeg(adjustedHeading)}° · ${fmt(adjustedSpeed,1)} kn`, '#ecfdf5', '#a7f3d0', '#0f766e')}
           ${arrowSvg(northBase.x, northBase.y, 60, 0, '#334155', '', 0, 0)}
           ${svgText(northBase.x - 26, northBase.y - 18, 'North 000°', 'fill="#10212f" font-size="15" font-weight="800"')}
         </g>
 
         <g>
-          ${svgRect(linePanel.x, linePanel.y, linePanel.w, linePanel.h, 'rx="20" fill="rgba(255,255,255,0.84)" stroke="rgba(211,223,232,0.95)" stroke-width="1.2"')}
-          ${svgText(linePanel.x + 18, linePanel.y + 30, 'Line Geometry', 'fill="#10212f" font-size="14" font-weight="800"')}
-          ${svgTextBlock(linePanel.x + 18, linePanel.y + 52, [
-            `Adjusted wind ${fmt(l.adjustedSailingWindHeadingDeg,1)}°`,
-            `Line RC->Pin ${fmt(l.headingDeg,1)}°`,
-            'Start line is shown perpendicular to adjusted wind'
-          ], 'fill="#546678" font-size="12.5" font-weight="600"', 16)}
-
-          ${svgLine(70, 268, 930, 268, 'stroke="#deebf3" stroke-width="1"')}
-          ${svgText(76, 259, 'START LINE SCHEMATIC', 'fill="#64748b" font-size="11.5" font-weight="800" letter-spacing="0.08em"')}
-
-          ${svgLine(idealCb.x, idealCb.y, idealPin.x, idealPin.y, 'stroke="#93a6bb" stroke-width="4" stroke-dasharray="10 9" stroke-linecap="round" opacity="0.9"')}
+          ${svgLine(70, 304, 930, 304, 'stroke="#e0ebf3" stroke-width="1"')}
+          ${svgLine(idealCb.x, idealCb.y, idealPin.x, idealPin.y, 'stroke="#9aaec2" stroke-width="4" stroke-dasharray="10 9" stroke-linecap="round" opacity="0.95"')}
           ${svgLine(cb.x, cb.y, pin.x, pin.y, 'stroke="#005f73" stroke-width="5" stroke-linecap="round" filter="url(#shadow)"')}
-          ${svgLine(center.x, center.y, center.x + Math.sin(degToRad(adjustedHeading)) * 82, center.y - Math.cos(degToRad(adjustedHeading)) * 82, 'stroke="#0f766e" stroke-width="2.4" stroke-dasharray="7 7" opacity="0.75"')}
+          ${svgLine(center.x, center.y, adjustedFromCenterEnd.x, adjustedFromCenterEnd.y, 'stroke="#0f766e" stroke-width="2.6" stroke-dasharray="7 7" opacity="0.8"')}
 
           ${svgCircle(cb.x, cb.y, 11, 'fill="#7c2d12" stroke="#fff" stroke-width="3"')}
           ${svgCircle(pin.x, pin.y, 11, 'fill="#1d4ed8" stroke="#fff" stroke-width="3"')}
@@ -910,9 +889,9 @@
           ${svgText(pin.x + 14, pin.y - 18, 'Pin', 'fill="#1d4ed8" font-size="15" font-weight="800"')}
           ${svgText(center.x + 10, center.y - 10, 'Center', 'fill="#334155" font-size="12.5" font-weight="700"')}
 
-          ${svgText((idealCb.x + idealPin.x) / 2 - 82, (idealCb.y + idealPin.y) / 2 + 28, `Wind-only ${fmt(idealHeading,1)}°`, 'fill="#64748b" font-size="12" font-weight="700"')}
-          ${svgText((cb.x + pin.x) / 2 - 88, (cb.y + pin.y) / 2 - 18, `Adjusted line ${fmt(l.headingDeg,1)}°`, 'fill="#005f73" font-size="13" font-weight="800"')}
-          ${svgText(center.x + 18, center.y - 48, `Perpendicular to adjusted wind ${fmt(l.adjustedSailingWindHeadingDeg,1)}°`, 'fill="#0f766e" font-size="12" font-weight="700"')}
+          ${svgBadge((idealCb.x + idealPin.x) / 2 - 48, (idealCb.y + idealPin.y) / 2 + 34, `Wind-only ${fmt(idealHeading,1)}°`, '#f8fafc', '#d8e4ed', '#64748b')}
+          ${svgBadge((cb.x + pin.x) / 2 - 58, (cb.y + pin.y) / 2 - 18, `Adjusted line ${fmt(l.headingDeg,1)}°`, '#ecfeff', '#99f6e4', '#005f73')}
+          ${svgBadge(adjustedFromCenterEnd.x + 14, adjustedFromCenterEnd.y - 10, `Adjusted wind ${fmt(l.adjustedSailingWindHeadingDeg,1)}°`, '#ecfdf5', '#a7f3d0', '#0f766e')}
 
         </g>
       `;
