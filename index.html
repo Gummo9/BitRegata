@@ -317,6 +317,7 @@
             <div class="legend-item"><span class="swatch sw-pin"></span><b>Pin</b> Pin End (line end)</div>
             <div class="legend-item"><b>Black Arrow</b> = Wind entered as FROM direction; arrow shows where the wind goes</div>
             <div class="legend-item"><b>Blue Arrow</b> = Current entered as TO direction; arrow shows where the current flows</div>
+            <div class="legend-item"><b>Teal Arrow</b> = Adjusted Sailing Wind = schematic vector sum of wind flow + current</div>
           </div>
         </div>
 
@@ -767,14 +768,33 @@
       `;
     }
 
+    function vectorFromBearingSpeed(bearingDeg, speed) {
+      const r = degToRad(bearingDeg);
+      return {
+        x: Math.sin(r) * speed,
+        y: Math.cos(r) * speed
+      };
+    }
+
     function renderDiagram() {
       const svg = ui.diagram;
       const l = derivedState.line;
       const center = { x: 500, y: 330 };
       const halfLen = 190;
+      const tws = Math.max(0, Number(appState.inputs.tws));
+      const currentDrift = Math.max(0, Number(appState.inputs.currentDrift));
       const idealHeading = mod360(Number(appState.inputs.twd) + 90);
       const windFlowHeading = mod360(Number(appState.inputs.twd) + 180); // arrow shows where the wind goes
       const currentHeading = mod360(Number(appState.inputs.currentSet));
+      const windVector = vectorFromBearingSpeed(windFlowHeading, tws);
+      const currentVector = vectorFromBearingSpeed(currentHeading, currentDrift);
+      const adjustedVector = {
+        x: windVector.x + currentVector.x,
+        y: windVector.y + currentVector.y
+      };
+      const adjustedSpeed = Math.hypot(adjustedVector.x, adjustedVector.y);
+      const adjustedHeading = adjustedSpeed > 0 ? mod360(radToDeg(Math.atan2(adjustedVector.x, adjustedVector.y))) : windFlowHeading;
+      const adjustedArrowLen = clamp(adjustedSpeed * 6, 28, 88);
 
       const visualPoint = (origin, len, bearingDeg) => ({
         x: origin.x + Math.sin(degToRad(bearingDeg)) * len,
@@ -804,8 +824,9 @@
         <g>
           ${svgCircle(vectorBase.x, vectorBase.y, 4, 'fill="#475569"')}
           ${svgText(vectorBase.x - 18, vectorBase.y - 18, 'Vector origin', 'fill="#64748b" font-size="11" font-weight="600"')}
-          ${arrowSvg(vectorBase.x, vectorBase.y, 64, windFlowHeading, '#111827', `Wind FROM ${fmtDeg(appState.inputs.twd)}°`, 10, -8)}
+          ${arrowSvg(vectorBase.x, vectorBase.y, 64, windFlowHeading, '#111827', `Wind FROM ${fmtDeg(appState.inputs.twd)}° -> TO ${fmtDeg(windFlowHeading)}°`, 10, -8)}
           ${arrowSvg(vectorBase.x, vectorBase.y, 56, currentHeading, '#1d4ed8', `Current TO ${fmtDeg(currentHeading)}° · ${fmt(appState.inputs.currentDrift,1)} kn`, 10, 16)}
+          ${arrowSvg(vectorBase.x, vectorBase.y, adjustedArrowLen, adjustedHeading, '#0f766e', `Adjusted Sailing Wind ${fmtDeg(adjustedHeading)}° · ${fmt(adjustedSpeed,1)} kn`, 10, 34)}
           ${arrowSvg(northBase.x, northBase.y, 56, 0, '#334155', 'North 000°')}
         </g>
 
@@ -815,7 +836,6 @@
 
           ${svgLine(idealCb.x, idealCb.y, idealPin.x, idealPin.y, 'stroke="#94a3b8" stroke-width="4" stroke-dasharray="10 8" stroke-linecap="round"')}
           ${svgLine(cb.x, cb.y, pin.x, pin.y, 'stroke="#005f73" stroke-width="5" stroke-linecap="round" filter="url(#shadow)"')}
-          ${svgLine(center.x, center.y, center.x + Math.sin(degToRad(l.upwindHeadingDeg)) * 74, center.y - Math.cos(degToRad(l.upwindHeadingDeg)) * 74, 'stroke="#0f766e" stroke-width="2.5" opacity="0.70"')}
 
           ${svgCircle(cb.x, cb.y, 9, 'fill="#7c2d12" stroke="#fff" stroke-width="2"')}
           ${svgCircle(pin.x, pin.y, 9, 'fill="#1d4ed8" stroke="#fff" stroke-width="2"')}
