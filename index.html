@@ -496,19 +496,35 @@
       return { waveEnabled, waveHeightM, waveFromDeg, waveToDeg, rawWaveDeltaDeg, waveTimeFactor };
     }
 
+    function computeAdjustedSailingWind(state) {
+      const twd = mod360(Number(state.inputs.twd));
+      const tws = Math.max(0, Number(state.inputs.tws));
+      const currentHeading = mod360(Number(state.inputs.currentSet));
+      const currentDrift = Math.max(0, Number(state.inputs.currentDrift));
+      const windFlowHeading = mod360(twd + 180);
+      const windVector = vectorFromBearingSpeed(windFlowHeading, tws);
+      const currentVector = vectorFromBearingSpeed(currentHeading, currentDrift);
+      const adjustedVector = {
+        x: windVector.x + currentVector.x,
+        y: windVector.y + currentVector.y
+      };
+      const adjustedSpeed = Math.hypot(adjustedVector.x, adjustedVector.y);
+      const adjustedHeading = adjustedSpeed > 0 ? mod360(radToDeg(Math.atan2(adjustedVector.x, adjustedVector.y))) : windFlowHeading;
+      return { windFlowHeading, adjustedHeading, adjustedSpeed };
+    }
+
     function computeLine(state) {
       const cb = point(state.committeeBoat.lat, state.committeeBoat.lon);
       const twd = mod360(Number(state.inputs.twd));
-      const tws = Math.max(0, Number(state.inputs.tws));
-      const setDir = mod360(Number(state.inputs.currentSet));
-      const drift = Math.max(0, Number(state.inputs.currentDrift));
       const upwindHeading = mod360(twd + 180);
-
-      const rawCurrentDeltaDeg = Number(state.advanced.kCurrent) * drift * Math.sin(degToRad(signedAngleDiffDeg(setDir, twd))) / Math.max(1, tws);
+      const baselineLineHeading = mod360(twd + 90);
+      const adjustedWind = computeAdjustedSailingWind(state);
+      const currentOnlyLineHeading = mod360(adjustedWind.adjustedHeading - 90);
+      const rawCurrentDeltaDeg = signedAngleDiffDeg(currentOnlyLineHeading, baselineLineHeading);
       const waveFx = computeWaveEffects(state, upwindHeading);
       const rawDelta = rawCurrentDeltaDeg + waveFx.rawWaveDeltaDeg;
       const deltaLineDeg = clamp(rawDelta, -Number(state.advanced.deltaLineClampDeg), Number(state.advanced.deltaLineClampDeg));
-      const lineHeading = mod360(twd + 90 + deltaLineDeg);
+      const lineHeading = mod360(baselineLineHeading + deltaLineDeg);
 
       const autoLengthM = computeAutoLineLengthM(state);
       const lengthM = state.inputs.useManualLineLength ? Math.max(1, Number(state.inputs.lineLengthOverrideM)) : autoLengthM;
@@ -519,6 +535,9 @@
         cb, pin, center,
         headingDeg: lineHeading,
         upwindHeadingDeg: upwindHeading,
+        adjustedSailingWindHeadingDeg: adjustedWind.adjustedHeading,
+        adjustedSailingWindSpeedKn: adjustedWind.adjustedSpeed,
+        windFlowHeadingDeg: adjustedWind.windFlowHeading,
         deltaCurrentDeg: rawCurrentDeltaDeg,
         deltaWaveDeg: waveFx.rawWaveDeltaDeg,
         deltaLineDeg,
@@ -682,6 +701,7 @@
       const estimatedTimeToM1Min = estimatedTimeToM1RawMin == null ? null : estimatedTimeToM1RawMin * combinedTimeFactor;
 
       const items = [
+        ["Adjusted Sailing Wind", `${fmt(l.adjustedSailingWindHeadingDeg,1)}° · ${fmt(l.adjustedSailingWindSpeedKn,1)} kn`],
         ["RC → Pin Line Bearing", `${fmt(l.headingDeg,1)}°`],
         ["Upwind Heading", `${fmt(l.upwindHeadingDeg,1)}°`],
         ["Current Line Correction", `${fmt(l.deltaCurrentDeg,2)}°`],
@@ -781,19 +801,11 @@
       const l = derivedState.line;
       const center = { x: 500, y: 330 };
       const halfLen = 190;
-      const tws = Math.max(0, Number(appState.inputs.tws));
-      const currentDrift = Math.max(0, Number(appState.inputs.currentDrift));
       const idealHeading = mod360(Number(appState.inputs.twd) + 90);
-      const windFlowHeading = mod360(Number(appState.inputs.twd) + 180); // arrow shows where the wind goes
+      const windFlowHeading = mod360(l.windFlowHeadingDeg); // arrow shows where the wind goes
       const currentHeading = mod360(Number(appState.inputs.currentSet));
-      const windVector = vectorFromBearingSpeed(windFlowHeading, tws);
-      const currentVector = vectorFromBearingSpeed(currentHeading, currentDrift);
-      const adjustedVector = {
-        x: windVector.x + currentVector.x,
-        y: windVector.y + currentVector.y
-      };
-      const adjustedSpeed = Math.hypot(adjustedVector.x, adjustedVector.y);
-      const adjustedHeading = adjustedSpeed > 0 ? mod360(radToDeg(Math.atan2(adjustedVector.x, adjustedVector.y))) : windFlowHeading;
+      const adjustedHeading = mod360(l.adjustedSailingWindHeadingDeg);
+      const adjustedSpeed = Math.max(0, Number(l.adjustedSailingWindSpeedKn));
       const adjustedArrowLen = clamp(adjustedSpeed * 6, 28, 88);
 
       const visualPoint = (origin, len, bearingDeg) => ({
