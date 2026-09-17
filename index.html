@@ -367,7 +367,7 @@
     const M_TO_NM = 1 / NM_TO_M;
     const EARTH_R_M = 6371000;
     const TWS_REF = 6;
-    const BOAT_CLASSES = ["Optimist", "ILCA", "420", "470", "J70"];
+    const BOAT_CLASSES = ["Optimist", "ILCA 7", "ILCA 6", "ILCA 4", "Dinghy 12", "420", "470", "J70"];
     const LEVEL_MULTIPLIER = { Beginner: 1.25, Intermediate: 1.10, Expert: 1.00 };
 
     const DEFAULT_STATE = {
@@ -377,7 +377,7 @@
         tws: 12,
         currentSet: 280,
         currentDrift: 0.8,
-        boatClass: "ILCA",
+        boatClass: "ILCA 7",
         participants: 40,
         fleetLevel: "Intermediate",
         d1Mode: "distance",
@@ -389,7 +389,7 @@
         rule3Enabled: true
       },
       advanced: {
-        baseSpacingPerBoatM: { Optimist: 2.5, ILCA: 3.5, "420": 4.2, "470": 4.7, J70: 6.5 },
+        baseSpacingPerBoatM: { Optimist: 2.5, "ILCA 7": 4.2, "ILCA 6": 4.2, "ILCA 4": 4.2, "Dinghy 12": 4.0, "420": 4.2, "470": 4.7, J70: 6.5 },
         basePaddingM: 20,
         lineClampMinM: 60,
         lineClampMaxM: 600,
@@ -403,7 +403,10 @@
       },
       speedModels: {
         Optimist: { upwind: { base: 2.2, slope: 0.08, min: 2.0, max: 4.0 } },
-        ILCA: { upwind: { base: 3.6, slope: 0.10, min: 3.0, max: 5.5 } },
+        "ILCA 7": { upwind: { base: 3.60, slope: 0.100, min: 3.00, max: 5.50 } },
+        "ILCA 6": { upwind: { base: 3.45, slope: 0.096, min: 2.87, max: 5.27 } },
+        "ILCA 4": { upwind: { base: 3.28, slope: 0.091, min: 2.73, max: 5.00 } },
+        "Dinghy 12": { upwind: { base: 3.61, slope: 0.100, min: 3.01, max: 5.52 } },
         "420": { upwind: { base: 3.8, slope: 0.11, min: 3.2, max: 6.0 } },
         "470": { upwind: { base: 4.0, slope: 0.12, min: 3.5, max: 6.2 } },
         J70: { upwind: { base: 4.8, slope: 0.12, min: 4.0, max: 7.0 } }
