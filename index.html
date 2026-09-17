@@ -37,6 +37,23 @@
       gap: 12px;
       padding: 10px;
     }
+    .lang-bar {
+      display: flex;
+      justify-content: flex-end;
+      padding: 10px 10px 0;
+    }
+    .lang-bar label.inline {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 6px 10px;
+      box-shadow: var(--shadow);
+    }
+    .lang-bar select {
+      width: auto;
+      padding: 4px 8px;
+      border-radius: 8px;
+    }
     .panel {
       background: var(--panel);
       border: 1px solid var(--line);
@@ -241,74 +258,84 @@
   </style>
 </head>
 <body>
+  <div class="lang-bar">
+    <label class="inline">
+      <span data-i18n="langLabel">Language</span>
+      <select id="langSelect">
+        <option value="it">🇮🇹 Italiano</option>
+        <option value="en">🇬🇧 English</option>
+        <option value="fr">🇫🇷 Français</option>
+      </select>
+    </label>
+  </div>
   <div class="app">
     <section class="panel">
       <div class="panel-header">
         <h1>BitRegataStart</h1>
-        <p>Start-line only: RC (Race Committee), Pin End, and Mark 1. No map, only a bearing diagram.</p>
+        <p data-i18n="subtitleMain">Start-line only: RC (Race Committee), Pin End, and Mark 1. No map, only a bearing diagram.</p>
       </div>
       <div class="panel-body">
         <div class="section">
-          <h2>Start Line Setup</h2>
+          <h2 data-i18n="hStartLineSetup">Start Line Setup</h2>
           <div class="grid-2">
-            <label>TWD (°, from)<input id="twd" type="number" min="0" max="359" step="1"></label>
-            <label>TWS (kn)<input id="tws" type="number" min="0" step="0.1"></label>
-            <label>Current Set (to, °)<input id="currentSet" type="number" min="0" max="359" step="1"></label>
-            <label>Current Drift (kn)<input id="currentDrift" type="number" min="0" step="0.1"></label>
-            <label>Class<select id="boatClass"></select></label>
-            <label>Boats (N)<input id="participants" type="number" min="1" step="1"></label>
-            <label>Fleet Skill Level
+            <label><span data-i18n="lblTwd">TWD (°, from)</span><input id="twd" type="number" min="0" max="359" step="1"></label>
+            <label><span data-i18n="lblTws">TWS (kn)</span><input id="tws" type="number" min="0" step="0.1"></label>
+            <label><span data-i18n="lblCurrentSet">Current Set (to, °)</span><input id="currentSet" type="number" min="0" max="359" step="1"></label>
+            <label><span data-i18n="lblCurrentDrift">Current Drift (kn)</span><input id="currentDrift" type="number" min="0" step="0.1"></label>
+            <label><span data-i18n="lblClass">Class</span><select id="boatClass"></select></label>
+            <label><span data-i18n="lblParticipants">Boats (N)</span><input id="participants" type="number" min="1" step="1"></label>
+            <label><span data-i18n="lblFleetLevel">Fleet Skill Level</span>
               <select id="fleetLevel">
-                <option value="Beginner">Beginner</option>
-                <option value="Intermediate">Intermediate</option>
-                <option value="Expert">Expert</option>
+                <option value="Beginner" data-i18n="optBeginner">Beginner</option>
+                <option value="Intermediate" data-i18n="optIntermediate">Intermediate</option>
+                <option value="Expert" data-i18n="optExpert">Expert</option>
               </select>
             </label>
-            <label>Mark 1 Distance Mode
+            <label><span data-i18n="lblD1Mode">Mark 1 Distance Mode</span>
               <select id="d1Mode">
-                <option value="distance">Distance Input (NM)</option>
-                <option value="time">Upwind Time Input (min)</option>
+                <option value="distance" data-i18n="optDistanceInput">Distance Input (NM)</option>
+                <option value="time" data-i18n="optTimeInput">Upwind Time Input (min)</option>
               </select>
             </label>
-            <label id="d1NmWrap">Mark 1 Distance (NM)<input id="d1Nm" type="number" min="0.01" step="0.01"></label>
-            <label id="d1TimeWrap">Target Upwind Time (min)<input id="targetTimeUpwindMin" type="number" min="1" step="0.1"></label>
+            <label id="d1NmWrap"><span data-i18n="lblD1Nm">Mark 1 Distance (NM)</span><input id="d1Nm" type="number" min="0.01" step="0.01"></label>
+            <label id="d1TimeWrap"><span data-i18n="lblTargetTime">Target Upwind Time (min)</span><input id="targetTimeUpwindMin" type="number" min="1" step="0.1"></label>
           </div>
           <div class="grid-2" style="margin-top:8px;">
-            <label class="inline"><input id="useManualLineLength" type="checkbox"> Manual Line Length Override</label>
-            <label class="inline"><input id="rule3Enabled" type="checkbox"> Rule 3 Correction (Mark 1)</label>
-            <label>Line Length (m)<input id="lineLengthOverrideM" type="number" min="1" step="1"></label>
-            <label>Line Length (NM)<input id="lineLengthOverrideNm" type="number" min="0.001" step="0.001"></label>
+            <label class="inline"><input id="useManualLineLength" type="checkbox"> <span data-i18n="lblManualOverride">Manual Line Length Override</span></label>
+            <label class="inline"><input id="rule3Enabled" type="checkbox"> <span data-i18n="lblRule3Enabled">Rule 3 Correction (Mark 1)</span></label>
+            <label><span data-i18n="lblLineLengthM">Line Length (m)</span><input id="lineLengthOverrideM" type="number" min="1" step="1"></label>
+            <label><span data-i18n="lblLineLengthNm">Line Length (NM)</span><input id="lineLengthOverrideNm" type="number" min="0.001" step="0.001"></label>
           </div>
         </div>
 
         <div class="section">
-          <h2>Advanced Line Settings</h2>
+          <h2 data-i18n="hAdvanced">Advanced Line Settings</h2>
           <div class="grid-2">
-            <label class="inline"><input id="waveEnabled" type="checkbox"> Enable Wave Correction</label>
+            <label class="inline"><input id="waveEnabled" type="checkbox"> <span data-i18n="lblWaveEnabled">Enable Wave Correction</span></label>
             <div></div>
-            <label>Base Padding (m)<input id="basePaddingM" type="number" min="0" step="1"></label>
-            <label>Current Factor (k_current)<input id="kCurrent" type="number" min="0" step="0.1"></label>
-            <label>Wave Factor (k_wave)<input id="kWave" type="number" min="0" step="0.1"></label>
-            <label>Min Line Length Clamp (m)<input id="lineClampMinM" type="number" min="1" step="1"></label>
-            <label>Max Line Length Clamp (m)<input id="lineClampMaxM" type="number" min="1" step="1"></label>
-            <label>Max Total Line Delta Clamp (Current + Waves, °)<input id="deltaLineClampDeg" type="number" min="0" step="0.1"></label>
-            <label>Mark 1 Time Multiplier<input id="mark1TimeMultiplier" type="number" min="0.1" step="0.05"></label>
-            <label>Wave Height (m)<input id="waveHeightM" type="number" min="0" step="0.1"></label>
-            <label>Wave Direction (from, °)<input id="waveDirectionFromDeg" type="number" min="0" max="359" step="1"></label>
+            <label><span data-i18n="lblBasePadding">Base Padding (m)</span><input id="basePaddingM" type="number" min="0" step="1"></label>
+            <label><span data-i18n="lblKCurrent">Current Factor (k_current)</span><input id="kCurrent" type="number" min="0" step="0.1"></label>
+            <label><span data-i18n="lblKWave">Wave Factor (k_wave)</span><input id="kWave" type="number" min="0" step="0.1"></label>
+            <label><span data-i18n="lblClampMin">Min Line Length Clamp (m)</span><input id="lineClampMinM" type="number" min="1" step="1"></label>
+            <label><span data-i18n="lblClampMax">Max Line Length Clamp (m)</span><input id="lineClampMaxM" type="number" min="1" step="1"></label>
+            <label><span data-i18n="lblDeltaClamp">Max Total Line Delta Clamp (Current + Waves, °)</span><input id="deltaLineClampDeg" type="number" min="0" step="0.1"></label>
+            <label><span data-i18n="lblMark1TimeMultiplier">Mark 1 Time Multiplier</span><input id="mark1TimeMultiplier" type="number" min="0.1" step="0.05"></label>
+            <label><span data-i18n="lblWaveHeight">Wave Height (m)</span><input id="waveHeightM" type="number" min="0" step="0.1"></label>
+            <label><span data-i18n="lblWaveDirection">Wave Direction (from, °)</span><input id="waveDirectionFromDeg" type="number" min="0" max="359" step="1"></label>
           </div>
-          <div class="hint" style="margin-top:8px;">The start line is computed from RC (Race Committee) to Pin End (bearing RC→Pin). Total line correction = current + waves. Current Set is a TO direction; Wave Direction is a FROM direction.</div>
+          <div class="hint" data-i18n="hintAdvanced" style="margin-top:8px;">The start line is computed from RC (Race Committee) to Pin End (bearing RC→Pin). Total line correction = current + waves. Current Set is a TO direction; Wave Direction is a FROM direction.</div>
         </div>
 
         <div class="section">
-          <h2>Actions</h2>
+          <h2 data-i18n="hActions">Actions</h2>
           <div class="actions">
-            <button id="recomputeAll" class="primary">Recompute</button>
-            <button id="resetDefaults">Reset Defaults</button>
+            <button id="recomputeAll" class="primary" data-i18n="btnRecompute">Recompute</button>
+            <button id="resetDefaults" data-i18n="btnReset">Reset Defaults</button>
           </div>
-          <div class="status" id="appStatus" aria-live="polite" style="margin-top:8px;">Change inputs to update the start line, Mark 1, and bearings.</div>
+          <div class="status" id="appStatus" aria-live="polite" data-i18n="statusDefault" style="margin-top:8px;">Change inputs to update the start line, Mark 1, and bearings.</div>
         </div>
 
-        <div class="footnote">
+        <div class="footnote" data-i18n="footnote">
           1 NM = 1852 m. All bearings are true (0-359). TWD is wind direction “from”.
         </div>
       </div>
@@ -316,8 +343,8 @@
 
     <section class="panel">
       <div class="panel-header">
-        <h1>Start Line Diagram</h1>
-        <p>Clean briefing schematic with wind, current, and start line only.</p>
+        <h1 data-i18n="h1Diagram">Start Line Diagram</h1>
+        <p data-i18n="subtitleDiagram">Clean briefing schematic with wind, current, and start line only.</p>
       </div>
       <div class="panel-body">
         <div class="section">
@@ -326,32 +353,32 @@
           </div>
           <div id="diagramStats" class="diagram-stats" aria-live="polite"></div>
           <div class="legend" style="margin-top:8px;">
-            <div class="legend-item"><span class="swatch sw-cb"></span><b>RC</b> Race Committee (line end)</div>
-            <div class="legend-item"><span class="swatch sw-pin"></span><b>Pin</b> Pin End (line end)</div>
-            <div class="legend-item"><b>Black Arrow</b> = Wind entered as FROM direction; arrow shows where the wind goes</div>
-            <div class="legend-item"><b>Blue Arrow</b> = Current entered as TO direction; arrow shows where the current flows</div>
-            <div class="legend-item"><b>Teal Arrow</b> = Adjusted Sailing Wind = schematic vector sum of wind flow + current</div>
+            <div class="legend-item"><span class="swatch sw-cb"></span><span data-i18n-html="legendRc"><b>RC</b> Race Committee (line end)</span></div>
+            <div class="legend-item"><span class="swatch sw-pin"></span><span data-i18n-html="legendPin"><b>Pin</b> Pin End (line end)</span></div>
+            <div class="legend-item" data-i18n-html="legendBlackArrow"><b>Black Arrow</b> = Wind entered as FROM direction; arrow shows where the wind goes</div>
+            <div class="legend-item" data-i18n-html="legendBlueArrow"><b>Blue Arrow</b> = Current entered as TO direction; arrow shows where the current flows</div>
+            <div class="legend-item" data-i18n-html="legendTealArrow"><b>Teal Arrow</b> = Adjusted Sailing Wind = schematic vector sum of wind flow + current</div>
           </div>
         </div>
 
         <div class="section">
-          <h2>Line / Mark 1 Output</h2>
+          <h2 data-i18n="hLineOutput">Line / Mark 1 Output</h2>
           <div class="summary-grid" id="summaryGrid"></div>
           <div class="hint" id="rule3Summary" style="margin-top:8px;"></div>
         </div>
 
         <div class="section">
-          <h2>Bearings and Distances</h2>
+          <h2 data-i18n="hBearingsTable">Bearings and Distances</h2>
           <div class="table-wrap">
             <table id="pointsTable">
               <thead>
                 <tr>
-                  <th>Point</th>
-                  <th>Bearing from Center (°)</th>
-                  <th>Bearing from RC raw (°)</th>
-                  <th>Bearing from RC corrected (°)</th>
-                  <th>Bearing from Pin (°)</th>
-                  <th>Distance from Center (NM)</th>
+                  <th data-i18n="thPoint">Point</th>
+                  <th data-i18n="thBearingCenter">Bearing from Center (°)</th>
+                  <th data-i18n="thBearingRcRaw">Bearing from RC raw (°)</th>
+                  <th data-i18n="thBearingRcCorrected">Bearing from RC corrected (°)</th>
+                  <th data-i18n="thBearingPin">Bearing from Pin (°)</th>
+                  <th data-i18n="thDistCenter">Distance from Center (NM)</th>
                 </tr>
               </thead>
               <tbody></tbody>
@@ -369,14 +396,358 @@
     const TWS_REF = 6;
     const BOAT_CLASSES = ["Optimist", "ILCA 7", "ILCA 6", "ILCA 4", "Dinghy 12", "420", "470", "J70"];
     const LEVEL_MULTIPLIER = { Beginner: 1.25, Intermediate: 1.10, Expert: 1.00 };
+    const FLEET_LEVEL_I18N_KEY = { Beginner: "optBeginner", Intermediate: "optIntermediate", Expert: "optExpert" };
+
+    const I18N = {
+      en: {
+        langLabel: "Language",
+        subtitleMain: "Start-line only: RC (Race Committee), Pin End, and Mark 1. No map, only a bearing diagram.",
+        hStartLineSetup: "Start Line Setup",
+        lblTwd: "TWD (°, from)",
+        lblTws: "TWS (kn)",
+        lblCurrentSet: "Current Set (to, °)",
+        lblCurrentDrift: "Current Drift (kn)",
+        lblClass: "Class",
+        lblParticipants: "Boats (N)",
+        lblFleetLevel: "Fleet Skill Level",
+        optBeginner: "Beginner",
+        optIntermediate: "Intermediate",
+        optExpert: "Expert",
+        lblD1Mode: "Mark 1 Distance Mode",
+        optDistanceInput: "Distance Input (NM)",
+        optTimeInput: "Upwind Time Input (min)",
+        lblD1Nm: "Mark 1 Distance (NM)",
+        lblTargetTime: "Target Upwind Time (min)",
+        lblManualOverride: "Manual Line Length Override",
+        lblRule3Enabled: "Rule 3 Correction (Mark 1)",
+        lblLineLengthM: "Line Length (m)",
+        lblLineLengthNm: "Line Length (NM)",
+        hAdvanced: "Advanced Line Settings",
+        lblWaveEnabled: "Enable Wave Correction",
+        lblBasePadding: "Base Padding (m)",
+        lblKCurrent: "Current Factor (k_current)",
+        lblKWave: "Wave Factor (k_wave)",
+        lblClampMin: "Min Line Length Clamp (m)",
+        lblClampMax: "Max Line Length Clamp (m)",
+        lblDeltaClamp: "Max Total Line Delta Clamp (Current + Waves, °)",
+        lblMark1TimeMultiplier: "Mark 1 Time Multiplier",
+        lblWaveHeight: "Wave Height (m)",
+        lblWaveDirection: "Wave Direction (from, °)",
+        hintAdvanced: "The start line is computed from RC (Race Committee) to Pin End (bearing RC→Pin). Total line correction = current + waves. Current Set is a TO direction; Wave Direction is a FROM direction.",
+        hActions: "Actions",
+        btnRecompute: "Recompute",
+        btnReset: "Reset Defaults",
+        statusDefault: "Change inputs to update the start line, Mark 1, and bearings.",
+        statusRecompute: "Recompute completed.",
+        statusReset: "Full reset completed.",
+        footnote: "1 NM = 1852 m. All bearings are true (0-359). TWD is wind direction “from”.",
+        h1Diagram: "Start Line Diagram",
+        subtitleDiagram: "Clean briefing schematic with wind, current, and start line only.",
+        legendRc: "<b>RC</b> Race Committee (line end)",
+        legendPin: "<b>Pin</b> Pin End (line end)",
+        legendBlackArrow: "<b>Black Arrow</b> = Wind entered as FROM direction; arrow shows where the wind goes",
+        legendBlueArrow: "<b>Blue Arrow</b> = Current entered as TO direction; arrow shows where the current flows",
+        legendTealArrow: "<b>Teal Arrow</b> = Adjusted Sailing Wind = schematic vector sum of wind flow + current",
+        hLineOutput: "Line / Mark 1 Output",
+        hBearingsTable: "Bearings and Distances",
+        thPoint: "Point",
+        thBearingCenter: "Bearing from Center (°)",
+        thBearingRcRaw: "Bearing from RC raw (°)",
+        thBearingRcCorrected: "Bearing from RC corrected (°)",
+        thBearingPin: "Bearing from Pin (°)",
+        thDistCenter: "Distance from Center (NM)",
+        sumAdjustedWind: "Adjusted Sailing Wind",
+        sumLineBearing: "RC → Pin Line Bearing",
+        sumUpwindHeading: "Upwind Heading",
+        sumCurrentCorrection: "Current Line Correction",
+        sumWaveCorrection: "Wave Line Correction",
+        sumTotalCorrection: "Total Line Correction",
+        sumLineLength: "Line Length",
+        sumAutoLineLength: "Auto Line Length",
+        sumD1: "Mark 1 Distance (D1)",
+        sumEstTimeM1: "Estimated Time to Mark 1",
+        sumEstUpwindSpeed: "Estimated Upwind Speed",
+        sumWaveTimeFactor: "Wave Time Factor",
+        sumM1BearingCenter: "Mark 1 Bearing from Center",
+        sumM1BearingRcRaw: "Mark 1 Bearing from RC (raw)",
+        sumM1BearingRcCorrected: "Mark 1 Bearing from RC (corrected)",
+        sumRule3Applied: "Rule 3 Correction Applied",
+        valWavesOffFactor: "x1.00 (waves off)",
+        valRule3Off: "(Rule 3 off)",
+        rule3Prefix: "Rule 3:",
+        rule3Parallax: "parallax",
+        rule3Side: "side",
+        rule3Applied: "applied",
+        rule3DeltaRawCenter: "Δ(raw RC vs center)",
+        rule3CenterCheck: "center-equivalent check",
+        sideLeft: "left",
+        sideRight: "right",
+        sideCenterline: "centerline",
+        dsCompensatedLine: "Compensated Line (RC→Pin):",
+        dsWindOnlyLine: "Wind-only Line (TWD+90):",
+        dsLineLength: "Line Length:",
+        dsCurrentCorrection: "Current Correction:",
+        dsWaveCorrection: "Wave Correction:",
+        dsWindTwd: "Wind (TWD):",
+        dsCurrent: "Current:",
+        dsWaves: "Waves:",
+        dsUpwindHeading: "Upwind Heading:",
+        dsFleet: "Fleet:",
+        dsTimeFactorPrefix: "time factor",
+        wordFrom: "from",
+        wordOff: "off",
+        wordBoats: "boats",
+        svgVectorLogic: "Vector logic",
+        svgFieldGeometry: "Field geometry",
+        svgSharedOrigin: "Shared origin",
+        svgWindFromPrefix: "Wind FROM",
+        svgCurrentToPrefix: "Current TO",
+        svgAdjustedPrefix: "Adjusted",
+        svgNorth: "North 000°",
+        svgCenter: "Center",
+        svgWindOnlyPrefix: "Wind-only",
+        svgAdjustedLinePrefix: "Adjusted line",
+        svgAdjustedWindPrefix: "Adjusted wind"
+      },
+      it: {
+        langLabel: "Lingua",
+        subtitleMain: "Solo linea di partenza: RC (Comitato di Regata), Pin End e Boa 1. Nessuna mappa, solo uno schema dei rilevamenti.",
+        hStartLineSetup: "Impostazioni Linea di Partenza",
+        lblTwd: "TWD (°, provenienza)",
+        lblTws: "TWS (nodi)",
+        lblCurrentSet: "Direzione Corrente (verso, °)",
+        lblCurrentDrift: "Intensità Corrente (nodi)",
+        lblClass: "Classe",
+        lblParticipants: "Barche (N)",
+        lblFleetLevel: "Livello della Flotta",
+        optBeginner: "Principiante",
+        optIntermediate: "Intermedio",
+        optExpert: "Esperto",
+        lblD1Mode: "Modalità Distanza Boa 1",
+        optDistanceInput: "Inserimento Distanza (NM)",
+        optTimeInput: "Inserimento Tempo Bolina (min)",
+        lblD1Nm: "Distanza Boa 1 (NM)",
+        lblTargetTime: "Tempo Bolina Obiettivo (min)",
+        lblManualOverride: "Lunghezza Linea Manuale",
+        lblRule3Enabled: "Correzione Regola 3 (Boa 1)",
+        lblLineLengthM: "Lunghezza Linea (m)",
+        lblLineLengthNm: "Lunghezza Linea (NM)",
+        hAdvanced: "Impostazioni Avanzate Linea",
+        lblWaveEnabled: "Abilita Correzione Onde",
+        lblBasePadding: "Margine Base (m)",
+        lblKCurrent: "Fattore Corrente (k_current)",
+        lblKWave: "Fattore Onde (k_wave)",
+        lblClampMin: "Lunghezza Minima Linea (m)",
+        lblClampMax: "Lunghezza Massima Linea (m)",
+        lblDeltaClamp: "Delta Massimo Linea (Corrente + Onde, °)",
+        lblMark1TimeMultiplier: "Moltiplicatore Tempo Boa 1",
+        lblWaveHeight: "Altezza Onde (m)",
+        lblWaveDirection: "Direzione Onde (provenienza, °)",
+        hintAdvanced: "La linea di partenza è calcolata da RC (Comitato di Regata) a Pin End (rilevamento RC→Pin). La correzione totale della linea = corrente + onde. La direzione della corrente è verso (TO); la direzione delle onde è di provenienza (FROM).",
+        hActions: "Azioni",
+        btnRecompute: "Ricalcola",
+        btnReset: "Ripristina Predefiniti",
+        statusDefault: "Modifica i parametri per aggiornare la linea di partenza, la Boa 1 e i rilevamenti.",
+        statusRecompute: "Ricalcolo completato.",
+        statusReset: "Ripristino completo eseguito.",
+        footnote: "1 NM = 1852 m. Tutti i rilevamenti sono veri (0-359). Il TWD è la direzione del vento di “provenienza”.",
+        h1Diagram: "Schema Linea di Partenza",
+        subtitleDiagram: "Schema essenziale per il briefing con vento, corrente e linea di partenza.",
+        legendRc: "<b>RC</b> Comitato di Regata (estremità linea)",
+        legendPin: "<b>Pin</b> Estremità Pin (estremità linea)",
+        legendBlackArrow: "<b>Freccia Nera</b> = Vento inserito come direzione di PROVENIENZA; la freccia indica dove va il vento",
+        legendBlueArrow: "<b>Freccia Blu</b> = Corrente inserita come direzione VERSO; la freccia indica dove scorre la corrente",
+        legendTealArrow: "<b>Freccia Verde Acqua</b> = Vento di Navigazione Corretto = somma vettoriale schematica di vento + corrente",
+        hLineOutput: "Output Linea / Boa 1",
+        hBearingsTable: "Rilevamenti e Distanze",
+        thPoint: "Punto",
+        thBearingCenter: "Rilevamento dal Centro (°)",
+        thBearingRcRaw: "Rilevamento da RC grezzo (°)",
+        thBearingRcCorrected: "Rilevamento da RC corretto (°)",
+        thBearingPin: "Rilevamento dal Pin (°)",
+        thDistCenter: "Distanza dal Centro (NM)",
+        sumAdjustedWind: "Vento di Navigazione Corretto",
+        sumLineBearing: "Rilevamento Linea RC → Pin",
+        sumUpwindHeading: "Rotta di Bolina",
+        sumCurrentCorrection: "Correzione Linea per Corrente",
+        sumWaveCorrection: "Correzione Linea per Onde",
+        sumTotalCorrection: "Correzione Totale Linea",
+        sumLineLength: "Lunghezza Linea",
+        sumAutoLineLength: "Lunghezza Linea Automatica",
+        sumD1: "Distanza Boa 1 (D1)",
+        sumEstTimeM1: "Tempo Stimato alla Boa 1",
+        sumEstUpwindSpeed: "Velocità Stimata di Bolina",
+        sumWaveTimeFactor: "Fattore Tempo Onde",
+        sumM1BearingCenter: "Rilevamento Boa 1 dal Centro",
+        sumM1BearingRcRaw: "Rilevamento Boa 1 da RC (grezzo)",
+        sumM1BearingRcCorrected: "Rilevamento Boa 1 da RC (corretto)",
+        sumRule3Applied: "Correzione Regola 3 Applicata",
+        valWavesOffFactor: "x1.00 (onde disattivate)",
+        valRule3Off: "(Regola 3 disattivata)",
+        rule3Prefix: "Regola 3:",
+        rule3Parallax: "parallasse",
+        rule3Side: "lato",
+        rule3Applied: "applicata",
+        rule3DeltaRawCenter: "Δ(RC grezzo vs centro)",
+        rule3CenterCheck: "verifica equivalente al centro",
+        sideLeft: "sinistra",
+        sideRight: "destra",
+        sideCenterline: "linea centrale",
+        dsCompensatedLine: "Linea Compensata (RC→Pin):",
+        dsWindOnlyLine: "Linea Solo Vento (TWD+90):",
+        dsLineLength: "Lunghezza Linea:",
+        dsCurrentCorrection: "Correzione Corrente:",
+        dsWaveCorrection: "Correzione Onde:",
+        dsWindTwd: "Vento (TWD):",
+        dsCurrent: "Corrente:",
+        dsWaves: "Onde:",
+        dsUpwindHeading: "Rotta di Bolina:",
+        dsFleet: "Flotta:",
+        dsTimeFactorPrefix: "fattore tempo",
+        wordFrom: "provenienza",
+        wordOff: "disattivate",
+        wordBoats: "barche",
+        svgVectorLogic: "Logica vettoriale",
+        svgFieldGeometry: "Geometria del campo",
+        svgSharedOrigin: "Origine comune",
+        svgWindFromPrefix: "Vento DA",
+        svgCurrentToPrefix: "Corrente VERSO",
+        svgAdjustedPrefix: "Corretto",
+        svgNorth: "Nord 000°",
+        svgCenter: "Centro",
+        svgWindOnlyPrefix: "Solo vento",
+        svgAdjustedLinePrefix: "Linea corretta",
+        svgAdjustedWindPrefix: "Vento corretto"
+      },
+      fr: {
+        langLabel: "Langue",
+        subtitleMain: "Uniquement la ligne de départ : RC (Comité de course), extrémité Pin et Bouée 1. Pas de carte, seulement un schéma des relèvements.",
+        hStartLineSetup: "Paramètres de la Ligne de Départ",
+        lblTwd: "TWD (°, provenance)",
+        lblTws: "TWS (nœuds)",
+        lblCurrentSet: "Direction du Courant (vers, °)",
+        lblCurrentDrift: "Intensité du Courant (nœuds)",
+        lblClass: "Classe",
+        lblParticipants: "Bateaux (N)",
+        lblFleetLevel: "Niveau de la Flotte",
+        optBeginner: "Débutant",
+        optIntermediate: "Intermédiaire",
+        optExpert: "Expert",
+        lblD1Mode: "Mode de Distance Bouée 1",
+        optDistanceInput: "Saisie de Distance (NM)",
+        optTimeInput: "Saisie du Temps au Près (min)",
+        lblD1Nm: "Distance Bouée 1 (NM)",
+        lblTargetTime: "Temps au Près Cible (min)",
+        lblManualOverride: "Longueur de Ligne Manuelle",
+        lblRule3Enabled: "Correction Règle 3 (Bouée 1)",
+        lblLineLengthM: "Longueur de Ligne (m)",
+        lblLineLengthNm: "Longueur de Ligne (NM)",
+        hAdvanced: "Paramètres Avancés de la Ligne",
+        lblWaveEnabled: "Activer la Correction des Vagues",
+        lblBasePadding: "Marge de Base (m)",
+        lblKCurrent: "Facteur Courant (k_current)",
+        lblKWave: "Facteur Vagues (k_wave)",
+        lblClampMin: "Longueur Minimale de Ligne (m)",
+        lblClampMax: "Longueur Maximale de Ligne (m)",
+        lblDeltaClamp: "Delta Maximal de Ligne (Courant + Vagues, °)",
+        lblMark1TimeMultiplier: "Multiplicateur de Temps Bouée 1",
+        lblWaveHeight: "Hauteur des Vagues (m)",
+        lblWaveDirection: "Direction des Vagues (provenance, °)",
+        hintAdvanced: "La ligne de départ est calculée du RC (Comité de course) à l'extrémité Pin (relèvement RC→Pin). La correction totale de la ligne = courant + vagues. La direction du courant est une direction VERS ; la direction des vagues est une direction DE PROVENANCE.",
+        hActions: "Actions",
+        btnRecompute: "Recalculer",
+        btnReset: "Réinitialiser",
+        statusDefault: "Modifiez les paramètres pour mettre à jour la ligne de départ, la Bouée 1 et les relèvements.",
+        statusRecompute: "Recalcul terminé.",
+        statusReset: "Réinitialisation complète effectuée.",
+        footnote: "1 NM = 1852 m. Tous les relèvements sont vrais (0-359). Le TWD est la direction du vent « de provenance ».",
+        h1Diagram: "Schéma de la Ligne de Départ",
+        subtitleDiagram: "Schéma épuré pour le briefing avec vent, courant et ligne de départ uniquement.",
+        legendRc: "<b>RC</b> Comité de course (extrémité de ligne)",
+        legendPin: "<b>Pin</b> Extrémité Pin (extrémité de ligne)",
+        legendBlackArrow: "<b>Flèche Noire</b> = Vent saisi comme direction DE PROVENANCE ; la flèche indique où va le vent",
+        legendBlueArrow: "<b>Flèche Bleue</b> = Courant saisi comme direction VERS ; la flèche indique où va le courant",
+        legendTealArrow: "<b>Flèche Sarcelle</b> = Vent de Navigation Ajusté = somme vectorielle schématique du vent + courant",
+        hLineOutput: "Résultats Ligne / Bouée 1",
+        hBearingsTable: "Relèvements et Distances",
+        thPoint: "Point",
+        thBearingCenter: "Relèvement depuis le Centre (°)",
+        thBearingRcRaw: "Relèvement depuis RC brut (°)",
+        thBearingRcCorrected: "Relèvement depuis RC corrigé (°)",
+        thBearingPin: "Relèvement depuis Pin (°)",
+        thDistCenter: "Distance depuis le Centre (NM)",
+        sumAdjustedWind: "Vent de Navigation Ajusté",
+        sumLineBearing: "Relèvement de Ligne RC → Pin",
+        sumUpwindHeading: "Cap au Près",
+        sumCurrentCorrection: "Correction de Ligne pour Courant",
+        sumWaveCorrection: "Correction de Ligne pour Vagues",
+        sumTotalCorrection: "Correction Totale de Ligne",
+        sumLineLength: "Longueur de Ligne",
+        sumAutoLineLength: "Longueur de Ligne Automatique",
+        sumD1: "Distance Bouée 1 (D1)",
+        sumEstTimeM1: "Temps Estimé à la Bouée 1",
+        sumEstUpwindSpeed: "Vitesse Estimée au Près",
+        sumWaveTimeFactor: "Facteur Temps Vagues",
+        sumM1BearingCenter: "Relèvement Bouée 1 depuis le Centre",
+        sumM1BearingRcRaw: "Relèvement Bouée 1 depuis RC (brut)",
+        sumM1BearingRcCorrected: "Relèvement Bouée 1 depuis RC (corrigé)",
+        sumRule3Applied: "Correction Règle 3 Appliquée",
+        valWavesOffFactor: "x1.00 (vagues désactivées)",
+        valRule3Off: "(Règle 3 désactivée)",
+        rule3Prefix: "Règle 3 :",
+        rule3Parallax: "parallaxe",
+        rule3Side: "côté",
+        rule3Applied: "appliquée",
+        rule3DeltaRawCenter: "Δ(RC brut vs centre)",
+        rule3CenterCheck: "vérification équivalente au centre",
+        sideLeft: "gauche",
+        sideRight: "droite",
+        sideCenterline: "ligne centrale",
+        dsCompensatedLine: "Ligne Compensée (RC→Pin) :",
+        dsWindOnlyLine: "Ligne Vent Seul (TWD+90) :",
+        dsLineLength: "Longueur de Ligne :",
+        dsCurrentCorrection: "Correction Courant :",
+        dsWaveCorrection: "Correction Vagues :",
+        dsWindTwd: "Vent (TWD) :",
+        dsCurrent: "Courant :",
+        dsWaves: "Vagues :",
+        dsUpwindHeading: "Cap au Près :",
+        dsFleet: "Flotte :",
+        dsTimeFactorPrefix: "facteur temps",
+        wordFrom: "provenance",
+        wordOff: "désactivées",
+        wordBoats: "bateaux",
+        svgVectorLogic: "Logique vectorielle",
+        svgFieldGeometry: "Géométrie du champ",
+        svgSharedOrigin: "Origine commune",
+        svgWindFromPrefix: "Vent DE",
+        svgCurrentToPrefix: "Courant VERS",
+        svgAdjustedPrefix: "Ajusté",
+        svgNorth: "Nord 000°",
+        svgCenter: "Centre",
+        svgWindOnlyPrefix: "Vent seul",
+        svgAdjustedLinePrefix: "Ligne ajustée",
+        svgAdjustedWindPrefix: "Vent ajusté"
+      }
+    };
+
+    let currentLang = localStorage.getItem("bitregata_lang") || "it";
+    function t(key) {
+      return (I18N[currentLang] && I18N[currentLang][key]) || I18N.en[key] || key;
+    }
+    function applyStaticI18n() {
+      document.documentElement.lang = currentLang;
+      document.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = t(el.getAttribute("data-i18n")); });
+      document.querySelectorAll("[data-i18n-html]").forEach((el) => { el.innerHTML = t(el.getAttribute("data-i18n-html")); });
+    }
 
     const DEFAULT_STATE = {
       committeeBoat: { lat: 43.547600, lon: 10.303200 },
       inputs: {
-        twd: 315,
+        twd: 360,
         tws: 12,
         currentSet: 280,
-        currentDrift: 0.8,
+        currentDrift: 1,
         boatClass: "ILCA 7",
         participants: 40,
         fleetLevel: "Intermediate",
@@ -716,27 +1087,29 @@
       const estimatedTimeToM1RawMin = upwind > 0 ? (d1.d1Nm / upwind) * 60 : null;
       const estimatedTimeToM1Min = estimatedTimeToM1RawMin == null ? null : estimatedTimeToM1RawMin * combinedTimeFactor;
 
+      const sideKey = r3.side === "left" ? "sideLeft" : r3.side === "right" ? "sideRight" : "sideCenterline";
+
       const items = [
-        ["Adjusted Sailing Wind", `${fmt(l.adjustedSailingWindHeadingDeg,1)}° · ${fmt(l.adjustedSailingWindSpeedKn,1)} kn`],
-        ["RC → Pin Line Bearing", `${fmt(l.headingDeg,1)}°`],
-        ["Upwind Heading", `${fmt(l.upwindHeadingDeg,1)}°`],
-        ["Current Line Correction", `${fmt(l.deltaCurrentDeg,2)}°`],
-        ["Wave Line Correction", `${fmt(l.deltaWaveDeg,2)}°`],
-        ["Total Line Correction", `${fmt(l.deltaLineDeg,2)}°`],
-        ["Line Length", `${fmt(l.lengthM,1)} m (${fmt(l.lengthNm,3)} NM)`],
-        ["Auto Line Length", `${fmt(l.autoLengthM,1)} m (${fmt(l.autoLengthNm,3)} NM)`],
-        ["Mark 1 Distance (D1)", `${fmt(d1.d1M,1)} m (${fmt(d1.d1Nm,3)} NM)`],
-        ["Estimated Time to Mark 1", `${fmt(estimatedTimeToM1Min,1)} min (x${fmt(combinedTimeFactor,2)})`],
-        ["Estimated Upwind Speed", `${fmt(upwind,2)} kn`],
-        ["Wave Time Factor", l.waveEnabled ? `x${fmt(waveTimeFactor,2)} (${fmt(l.waveHeightM,1)} m @ ${fmtDeg(l.waveDirectionFromDeg)}° from)` : "x1.00 (waves off)"],
-        ["Mark 1 Bearing from Center", `${fmtDeg(r3.bearingCenter)}°`],
-        ["Mark 1 Bearing from RC (raw)", `${fmtDeg(r3.bearingCbRaw)}°`],
-        ["Mark 1 Bearing from RC (corrected)", `${fmtDeg(correctedRcBearing)}° ${appState.inputs.rule3Enabled ? "" : "(Rule 3 off)"}`],
-        ["Rule 3 Correction Applied", `${fmt(r3.correctionAppliedDeg,2)}°`]
+        [t("sumAdjustedWind"), `${fmt(l.adjustedSailingWindHeadingDeg,1)}° · ${fmt(l.adjustedSailingWindSpeedKn,1)} kn`],
+        [t("sumLineBearing"), `${fmt(l.headingDeg,1)}°`],
+        [t("sumUpwindHeading"), `${fmt(l.upwindHeadingDeg,1)}°`],
+        [t("sumCurrentCorrection"), `${fmt(l.deltaCurrentDeg,2)}°`],
+        [t("sumWaveCorrection"), `${fmt(l.deltaWaveDeg,2)}°`],
+        [t("sumTotalCorrection"), `${fmt(l.deltaLineDeg,2)}°`],
+        [t("sumLineLength"), `${fmt(l.lengthM,1)} m (${fmt(l.lengthNm,3)} NM)`],
+        [t("sumAutoLineLength"), `${fmt(l.autoLengthM,1)} m (${fmt(l.autoLengthNm,3)} NM)`],
+        [t("sumD1"), `${fmt(d1.d1M,1)} m (${fmt(d1.d1Nm,3)} NM)`],
+        [t("sumEstTimeM1"), `${fmt(estimatedTimeToM1Min,1)} min (x${fmt(combinedTimeFactor,2)})`],
+        [t("sumEstUpwindSpeed"), `${fmt(upwind,2)} kn`],
+        [t("sumWaveTimeFactor"), l.waveEnabled ? `x${fmt(waveTimeFactor,2)} (${fmt(l.waveHeightM,1)} m @ ${fmtDeg(l.waveDirectionFromDeg)}° ${t("wordFrom")})` : t("valWavesOffFactor")],
+        [t("sumM1BearingCenter"), `${fmtDeg(r3.bearingCenter)}°`],
+        [t("sumM1BearingRcRaw"), `${fmtDeg(r3.bearingCbRaw)}°`],
+        [t("sumM1BearingRcCorrected"), `${fmtDeg(correctedRcBearing)}° ${appState.inputs.rule3Enabled ? "" : t("valRule3Off")}`],
+        [t("sumRule3Applied"), `${fmt(r3.correctionAppliedDeg,2)}°`]
       ];
 
       ui.summaryGrid.innerHTML = items.map(([k, v]) => `<div class="metric"><span class="k">${k}</span><div class="v">${v}</div></div>`).join("");
-      ui.rule3Summary.textContent = `Rule 3: parallax ${fmt(r3.parallaxDeg,2)}° · side ${r3.side} · applied ${fmt(r3.correctionAppliedDeg,2)}° · Δ(raw RC vs center) ${fmt(r3.deltaCenterVsCbRawDeg,2)}° · center-equivalent check ${fmt(r3.deltaCenterVsCbCorrectedDeg,2)}°`;
+      ui.rule3Summary.textContent = `${t("rule3Prefix")} ${t("rule3Parallax")} ${fmt(r3.parallaxDeg,2)}° · ${t("rule3Side")} ${t(sideKey)} · ${t("rule3Applied")} ${fmt(r3.correctionAppliedDeg,2)}° · ${t("rule3DeltaRawCenter")} ${fmt(r3.deltaCenterVsCbRawDeg,2)}° · ${t("rule3CenterCheck")} ${fmt(r3.deltaCenterVsCbCorrectedDeg,2)}°`;
     }
 
     function updatePointsTable() {
@@ -763,19 +1136,20 @@
     function updateDiagramStats() {
       const l = derivedState.line;
       const idealHeading = mod360(Number(appState.inputs.twd) + 90);
+      const fleetLevelLabel = t(FLEET_LEVEL_I18N_KEY[appState.inputs.fleetLevel] || "optIntermediate");
       ui.diagramStats.innerHTML = `
         <div class="diagram-stats-col">
-          <div class="diagram-stats-line"><strong>Compensated Line (RC→Pin):</strong> ${fmt(l.headingDeg,1)}°</div>
-          <div class="diagram-stats-line">Wind-only Line (TWD+90): ${fmt(idealHeading,1)}°</div>
-          <div class="diagram-stats-line">Line Length: ${fmt(l.lengthM,1)} m (${fmt(l.lengthNm,3)} NM)</div>
-          <div class="diagram-stats-line">Current Correction: ${fmt(l.deltaCurrentDeg,2)}° · Wave Correction: ${fmt(l.deltaWaveDeg,2)}°${l.waveEnabled ? "" : " (off)"}</div>
+          <div class="diagram-stats-line"><strong>${t("dsCompensatedLine")}</strong> ${fmt(l.headingDeg,1)}°</div>
+          <div class="diagram-stats-line">${t("dsWindOnlyLine")} ${fmt(idealHeading,1)}°</div>
+          <div class="diagram-stats-line">${t("dsLineLength")} ${fmt(l.lengthM,1)} m (${fmt(l.lengthNm,3)} NM)</div>
+          <div class="diagram-stats-line">${t("dsCurrentCorrection")} ${fmt(l.deltaCurrentDeg,2)}° · ${t("dsWaveCorrection")} ${fmt(l.deltaWaveDeg,2)}°${l.waveEnabled ? "" : ` (${t("wordOff")})`}</div>
         </div>
         <div class="diagram-stats-col">
-          <div class="diagram-stats-line"><strong>Wind (TWD):</strong> ${fmtDeg(appState.inputs.twd)}° from</div>
-          <div class="diagram-stats-line">Current: ${fmtDeg(appState.inputs.currentSet)}° · ${fmt(appState.inputs.currentDrift,1)} kn</div>
-          <div class="diagram-stats-line">Waves: ${l.waveEnabled ? `${fmt(l.waveHeightM,1)} m from ${fmtDeg(l.waveDirectionFromDeg)}° · time factor x${fmt(l.waveTimeFactor,2)}` : "off"}</div>
-          <div class="diagram-stats-line">Upwind Heading: ${fmt(l.upwindHeadingDeg,1)}°</div>
-          <div class="diagram-stats-line">Fleet: ${appState.inputs.boatClass} · ${Math.round(appState.inputs.participants)} boats · ${appState.inputs.fleetLevel}</div>
+          <div class="diagram-stats-line"><strong>${t("dsWindTwd")}</strong> ${fmtDeg(appState.inputs.twd)}° ${t("wordFrom")}</div>
+          <div class="diagram-stats-line">${t("dsCurrent")} ${fmtDeg(appState.inputs.currentSet)}° · ${fmt(appState.inputs.currentDrift,1)} kn</div>
+          <div class="diagram-stats-line">${t("dsWaves")} ${l.waveEnabled ? `${fmt(l.waveHeightM,1)} m ${t("wordFrom")} ${fmtDeg(l.waveDirectionFromDeg)}° · ${t("dsTimeFactorPrefix")} x${fmt(l.waveTimeFactor,2)}` : t("wordOff")}</div>
+          <div class="diagram-stats-line">${t("dsUpwindHeading")} ${fmt(l.upwindHeadingDeg,1)}°</div>
+          <div class="diagram-stats-line">${t("dsFleet")} ${appState.inputs.boatClass} · ${Math.round(appState.inputs.participants)} ${t("wordBoats")} · ${fleetLevelLabel}</div>
         </div>
       `;
     }
@@ -860,8 +1234,8 @@
           ${Array.from({ length: 10 }).map((_, i) => svgLine(60 + i * 95, 36, 60 + i * 95, 584, 'stroke="#d8e4ed" stroke-width="1"')).join('')}
           ${Array.from({ length: 6 }).map((_, i) => svgLine(40, 82 + i * 84, 960, 82 + i * 84, 'stroke="#d8e4ed" stroke-width="1"')).join('')}
         </g>
-        ${svgText(60, 58, 'Vector logic', 'fill="#607284" font-size="13" font-weight="800" letter-spacing="0.08em"')}
-        ${svgText(60, 292, 'Field geometry', 'fill="#607284" font-size="13" font-weight="800" letter-spacing="0.08em"')}
+        ${svgText(60, 58, t("svgVectorLogic"), 'fill="#607284" font-size="13" font-weight="800" letter-spacing="0.08em"')}
+        ${svgText(60, 292, t("svgFieldGeometry"), 'fill="#607284" font-size="13" font-weight="800" letter-spacing="0.08em"')}
 
         <g>
           ${svgRect(54, 72, 316, 170, 'rx="18" fill="rgba(255,255,255,0.84)" stroke="#d3dfe8" stroke-width="1.2"')}
@@ -870,12 +1244,12 @@
           ${arrowSvg(vectorBase.x, vectorBase.y, 66, windFlowHeading, '#111827', '', 0, 0)}
           ${arrowSvg(vectorBase.x, vectorBase.y, 58, currentHeading, '#1d4ed8', '', 0, 0)}
           ${arrowSvg(vectorBase.x, vectorBase.y, adjustedArrowLen, adjustedHeading, '#0f766e', '', 0, 0)}
-          ${svgText(vectorBase.x - 34, vectorBase.y + 94, 'Shared origin', 'fill="#607284" font-size="11.5" font-weight="700"')}
-          ${svgBadge(214, 116, `Wind FROM ${fmtDeg(appState.inputs.twd)}°`, '#f8fafc', '#d8e4ed')}
-          ${svgBadge(214, 150, `Current TO ${fmtDeg(currentHeading)}° · ${fmt(appState.inputs.currentDrift,1)} kn`, '#eff6ff', '#bfdbfe', '#1d4ed8')}
-          ${svgBadge(214, 184, `Adjusted ${fmtDeg(adjustedHeading)}° · ${fmt(adjustedSpeed,1)} kn`, '#ecfdf5', '#a7f3d0', '#0f766e')}
+          ${svgText(vectorBase.x - 34, vectorBase.y + 94, t("svgSharedOrigin"), 'fill="#607284" font-size="11.5" font-weight="700"')}
+          ${svgBadge(214, 116, `${t("svgWindFromPrefix")} ${fmtDeg(appState.inputs.twd)}°`, '#f8fafc', '#d8e4ed')}
+          ${svgBadge(214, 150, `${t("svgCurrentToPrefix")} ${fmtDeg(currentHeading)}° · ${fmt(appState.inputs.currentDrift,1)} kn`, '#eff6ff', '#bfdbfe', '#1d4ed8')}
+          ${svgBadge(214, 184, `${t("svgAdjustedPrefix")} ${fmtDeg(adjustedHeading)}° · ${fmt(adjustedSpeed,1)} kn`, '#ecfdf5', '#a7f3d0', '#0f766e')}
           ${arrowSvg(northBase.x, northBase.y, 60, 0, '#334155', '', 0, 0)}
-          ${svgText(northBase.x - 26, northBase.y - 18, 'North 000°', 'fill="#10212f" font-size="15" font-weight="800"')}
+          ${svgText(northBase.x - 26, northBase.y - 18, t("svgNorth"), 'fill="#10212f" font-size="15" font-weight="800"')}
         </g>
 
         <g>
@@ -890,11 +1264,11 @@
 
           ${svgText(cb.x - 18, cb.y - 22, 'RC', 'fill="#7c2d12" font-size="15" font-weight="800"')}
           ${svgText(pin.x + 14, pin.y - 18, 'Pin', 'fill="#1d4ed8" font-size="15" font-weight="800"')}
-          ${svgText(center.x + 10, center.y - 10, 'Center', 'fill="#334155" font-size="12.5" font-weight="700"')}
+          ${svgText(center.x + 10, center.y - 10, t("svgCenter"), 'fill="#334155" font-size="12.5" font-weight="700"')}
 
-          ${svgBadge((idealCb.x + idealPin.x) / 2 - 48, (idealCb.y + idealPin.y) / 2 + 34, `Wind-only ${fmt(idealHeading,1)}°`, '#f8fafc', '#d8e4ed', '#64748b')}
-          ${svgBadge((cb.x + pin.x) / 2 - 58, (cb.y + pin.y) / 2 - 18, `Adjusted line ${fmt(l.headingDeg,1)}°`, '#ecfeff', '#99f6e4', '#005f73')}
-          ${svgBadge(adjustedFromCenterEnd.x + 14, adjustedFromCenterEnd.y - 10, `Adjusted wind ${fmt(l.adjustedSailingWindHeadingDeg,1)}°`, '#ecfdf5', '#a7f3d0', '#0f766e')}
+          ${svgBadge((idealCb.x + idealPin.x) / 2 - 48, (idealCb.y + idealPin.y) / 2 + 34, `${t("svgWindOnlyPrefix")} ${fmt(idealHeading,1)}°`, '#f8fafc', '#d8e4ed', '#64748b')}
+          ${svgBadge((cb.x + pin.x) / 2 - 58, (cb.y + pin.y) / 2 - 18, `${t("svgAdjustedLinePrefix")} ${fmt(l.headingDeg,1)}°`, '#ecfeff', '#99f6e4', '#005f73')}
+          ${svgBadge(adjustedFromCenterEnd.x + 14, adjustedFromCenterEnd.y - 10, `${t("svgAdjustedWindPrefix")} ${fmt(l.adjustedSailingWindHeadingDeg,1)}°`, '#ecfdf5', '#a7f3d0', '#0f766e')}
 
         </g>
       `;
@@ -987,12 +1361,19 @@
         }));
 
       ui.recomputeAll.addEventListener("click", () => {
-        recomputeAndRender("Recompute completed.");
+        recomputeAndRender(t("statusRecompute"));
       });
 
       ui.resetDefaults.addEventListener("click", () => {
         Object.assign(appState, JSON.parse(JSON.stringify(DEFAULT_STATE)));
-        recomputeAndRender("Full reset completed.");
+        recomputeAndRender(t("statusReset"));
+      });
+
+      ui.langSelect.addEventListener("change", () => {
+        currentLang = ui.langSelect.value;
+        localStorage.setItem("bitregata_lang", currentLang);
+        applyStaticI18n();
+        recomputeAndRender();
       });
     }
 
@@ -1003,13 +1384,15 @@
         "basePaddingM", "kCurrent", "kWave", "lineClampMinM", "lineClampMaxM", "deltaLineClampDeg",
         "mark1TimeMultiplier", "waveEnabled", "waveHeightM", "waveDirectionFromDeg",
         "recomputeAll", "resetDefaults", "appStatus", "d1NmWrap", "d1TimeWrap",
-        "summaryGrid", "rule3Summary", "pointsTable", "diagram", "diagramStats"
+        "summaryGrid", "rule3Summary", "pointsTable", "diagram", "diagramStats", "langSelect"
       ].forEach((id) => ui[id] = document.getElementById(id));
     }
 
     function init() {
       cacheUI();
       ui.boatClass.innerHTML = BOAT_CLASSES.map((c) => `<option value="${c}">${c}</option>`).join("");
+      ui.langSelect.value = currentLang;
+      applyStaticI18n();
       syncFormFromState();
       bindInputs();
       recomputeAndRender();
